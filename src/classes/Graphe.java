@@ -1,13 +1,11 @@
+package classes;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
@@ -18,7 +16,11 @@ public class Graphe {
 	
 	public Graphe() {}
 	
-	//Création d'un graphe à partir d'une matrice
+	/**
+	 * Création d'un graphe à partir d'une matrice
+	 * @param mat
+	 */
+	
 	public Graphe( int [][] mat )
 	{
 		for(int i = 0; i < mat.length; i++)
@@ -31,7 +33,11 @@ public class Graphe {
 		}	
 	}
 	
-	//Création d'un graphe avec ses noeuds sans arcs
+	/**
+	 * Création d'un graphe avec des noeuds sans arcs
+	 * @param k
+	 */
+	
 	public Graphe(int k)
 	{
 		for(int i = 0; i < k; i++ )
@@ -41,11 +47,15 @@ public class Graphe {
 		}
 	}
 	
-	//Création d'un graphe à partir d'un fichier CSV
+	/**
+	 * Création d'un graphe à partir d'un fichier CSV
+	 * @param file
+	 */
+	
 	public Graphe(String file)
 	{
 		String line = "";
-	    String splitBy = ";";
+	    String splitBy = ",";
 	    try {
 	      //parsing a CSV file into BufferedReader class constructor  
 	      BufferedReader br = new BufferedReader(new FileReader(file));
@@ -57,22 +67,31 @@ public class Graphe {
 	        addNoeud(Integer.parseInt(ids[1]));
 	        addArc(Integer.parseInt(ids[0]), Integer.parseInt(ids[1]));
 	      }
+	      br.close();
 	    }
 	    catch(IOException e) {
 	      e.printStackTrace();
 	    }
 	}
 	
-	//Ajout d'un noeud
+	/**
+	 * Ajout d'un noeud
+	 * @param n
+	 */
+	
 	public void addNoeud(int n) {
-		boolean appartient = false;
 	
 		if( noeuds_hm.get(n) == null )
 			this.noeuds_hm.put(n, new Noeud(n));
 		
 	}
 	
-	//Ajout d'un  arc
+	/**
+	 * Ajout d'un arc
+	 * @param x
+	 * @param y
+	 */
+	
 	public void addArc(int x, int y)
 	{
 		//Si les deux id sont distincts, on crée l'arc
@@ -102,7 +121,13 @@ public class Graphe {
 		}
 	}
 	
-	//Vérifie si l'arc (i, j) existe
+	/**
+	 * Vérifie si l'arc (i, j) existe
+	 * @param i
+	 * @param j
+	 * @return un booléen
+	 */
+	
 	public boolean ArcExist(int i, int j)
 	{
 		Set<Integer> keys = noeuds_hm.keySet();
@@ -122,22 +147,9 @@ public class Graphe {
 		
 		return false;
 	}
-
-	
-	public void RemoveAllArc()
-	{
-		Set<Integer> keys = noeuds_hm.keySet();
-		for(Integer key : keys)
-		{
-			Noeud n = noeuds_hm.get(key);
-			n.removeAllSucc();
-		}
-	
-	}
 	
 	public void parcours()
 	{
-		int profondeur = 0;
 		Set<Integer> keys = noeuds_hm.keySet();
 		for(Integer key : keys)
 		{
@@ -157,71 +169,6 @@ public class Graphe {
 			}
 			
 		}
-		
-	}
-	
-	public ArrayList<Noeud> indiceCroissant()
-	{
-		ArrayList<Noeud> noeuds = new ArrayList<Noeud>();
-		Set<Integer> indices = noeuds_hm.keySet();
-		int plusPetitIndice = (int) Double.POSITIVE_INFINITY;
-				
-		for(int i : indices)
-		{
-			if( i < plusPetitIndice )
-				plusPetitIndice = i;
-		}
-		
-		noeuds = croissantRec(noeuds_hm.get(plusPetitIndice), noeuds);
-		System.out.println(noeuds);
-		return noeuds;
-	}
-	
-	private ArrayList<Noeud> croissantRec(Noeud n, ArrayList<Noeud> noeudsTmp)
-	{
-		if(!n.getSucc().isEmpty() && !n.isMark())
-		{
-			n.setMark(true);
-			noeudsTmp.add(n);
-			ArrayList<Noeud> noeuds = n.getSuccTriee();
-			for(Noeud noeud : noeuds)
-			{
-				if(!noeud.isMark()) {
-					System.out.println("Voisins de " + n.getId() +" : " + noeud.getId());
-					noeudsTmp = croissantRec(noeud, noeudsTmp);
-				}
-			}
-		}
-		return noeudsTmp;
-	}
-	
-	public void sequentielle(ArrayList<Noeud> noeuds)
-	{
-		
-		int omega = 0;
-		
-		for(Noeud noeud : noeuds)
-		{
-			int alpha = 1;
-			for(Arc arc : noeud.getSucc())
-			{
-				Noeud cible = arc.getCible();
-				
-				if(cible.getCouleur() == alpha)
-				{
-					alpha++;
-				}
-				
-			}
-			
-			if(alpha > omega)
-				omega = alpha;
-			
-			noeud.setCouleur(alpha);
-			
-		}
-		
-		System.out.println(omega);
 		
 	}
 	
@@ -345,8 +292,11 @@ public class Graphe {
 	}	
 	
 	
-	// Export d’un graphe sous format CSV selon la liste de ses arcs
-	// Format Source : Target
+	/**
+	 * Export d’un graphe sous format CSV selon la liste de ses arcs
+	 * Format Source : Target 
+	 */
+	
 	public void export() {
 		Set<Integer> keys = noeuds_hm.keySet();
 		String buff = "Source,Target\n";
@@ -367,12 +317,15 @@ public class Graphe {
 			out.write(buff);
 			out.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	//Affichage du graphe
+	/**
+	 * Affichage du graphe
+	 */
+	
+	@Override
 	public String toString()
 	{
 		String s = "";
@@ -383,7 +336,6 @@ public class Graphe {
 		for(Integer key : keys)
 		{
 			s += "R(" + this.getNoeud(key) + ") = ";
-			LinkedList<Arc> succ = this.getNoeud(key).getSucc();
 			s += "{";
 			for(Arc arc : this.getNoeud(key).getSucc())
 			{
@@ -395,10 +347,36 @@ public class Graphe {
 		return s;
 	}
 	
-	//Récupère un noeud avec un id n
+
+	/**
+	 * Récupère un noeud du graphe identifié par son id
+ 	 * @param n
+	 * @return un noeud
+	 */
+	
 	public Noeud getNoeud(int n)
 	{		
 		return noeuds_hm.get(n);
 	}
+	
+	/**
+	 * Retourne la liste de noeuds identifiés par un id
+	 * @return un hash map
+	 */
+
+	public HashMap<Integer, Noeud> getNoeuds_hm() {
+		return noeuds_hm;
+	}
+
+	/**
+	 * Met à jour le graphe
+	 * @param noeuds_hm
+	 */
+	
+	public void setNoeuds_hm(HashMap<Integer, Noeud> noeuds_hm) {
+		this.noeuds_hm = noeuds_hm;
+	}
+	
+	
 
 }

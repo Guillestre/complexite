@@ -1,3 +1,4 @@
+package classes;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -74,7 +75,7 @@ public class Noeud {
 		this.couleur = couleur;
 	}
 
-	public ArrayList<Noeud> getSuccTriee()
+	public ArrayList<Noeud> getSuccSortedByIndex()
 	{
 		ArrayList<Noeud> noeudsMarque = new ArrayList<Noeud>();
 		
@@ -102,6 +103,39 @@ public class Noeud {
 		}
 		
 		return noeudsMarque;
+	}
+	
+	public ArrayList<Noeud> getSuccSortedByDegree()
+	{
+		ArrayList<Noeud> sortedNodes = new ArrayList<Noeud>();
+		
+		while(sortedNodes.size() != succ.size()) {
+			
+			for(Arc arc : succ)
+			{
+				Noeud neighbour = arc.getCible();
+				boolean isGreater = true;
+				
+				if(!sortedNodes.contains(neighbour))
+				{
+					for(Arc tmpArc : succ)
+					{
+						Noeud tmpNeighbour = tmpArc.getCible();
+						if(!tmpNeighbour.equals(neighbour) && !sortedNodes.contains(tmpNeighbour))
+							if(tmpNeighbour.getSucc().size() > neighbour.getSucc().size())
+								isGreater = false;
+						
+					}
+					
+					if(isGreater) {
+						System.out.println("\tNode added : "+ neighbour.getId());
+						sortedNodes.add(neighbour);
+					}
+				}	
+			}
+		}
+		
+		return sortedNodes;
 	}
 
 }

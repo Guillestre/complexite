@@ -1,7 +1,6 @@
-import java.awt.List;
+package classes;
+
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 
 public class GrapheTSP extends Graphe {
 
@@ -20,9 +19,6 @@ public class GrapheTSP extends Graphe {
 		creerPoints(n);
 		
 		//Création des arcs
-		
-			//Contient m arcs les plus proches
-			LinkedList<Arc> arcsProche = new LinkedList<Arc>();
 			
 			//Distance qui démarre à l'infini
 			double d;

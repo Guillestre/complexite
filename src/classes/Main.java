@@ -11,9 +11,10 @@ public class Main {
 		System.out.println(g1);
 		
 		System.out.println("---- PATH -----");
-		c.decreasingDegree(g1.getNoeuds_hm());
+		//c.decreasingDegree(g1.getNoeuds_hm());
 		
 		System.out.println("---- METHOD -----");
+		c.sequentielle(c.decreasingDegree(g1.getNoeuds_hm()));
 	}
 
 }

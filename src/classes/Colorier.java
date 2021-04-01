@@ -64,8 +64,7 @@ public class Colorier {
 			}
 			
 		}
-		
-		nodes = decreasingDegreeRec(noeuds_hm.get(greaterDegree), nodes);
+		nodes = decreasingDegreeRec(noeuds_hm.get(firstNode.getId()), nodes);
 		System.out.println("Path selected : " + nodes);
 		return nodes;
 	}
@@ -114,7 +113,7 @@ public class Colorier {
 			
 		}
 		
-		System.out.println(omega);
+		System.out.println("nb minimum colors : " + omega);
 		
 	}
 	

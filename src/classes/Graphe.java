@@ -11,8 +11,8 @@ import java.util.Stack;
 
 public class Graphe {
 	
-	private LinkedList<Noeud> noeuds = new LinkedList<Noeud>();
-	private HashMap<Integer, Noeud> noeuds_hm = new HashMap<Integer, Noeud>();
+	private LinkedList<Node> noeuds = new LinkedList<Node>();
+	private HashMap<Integer, Node> noeuds_hm = new HashMap<Integer, Node>();
 	
 	public Graphe() {}
 	
@@ -42,8 +42,8 @@ public class Graphe {
 	{
 		for(int i = 0; i < k; i++ )
 		{
-			this.noeuds.add(new Noeud(i));
-			this.noeuds_hm.put(i, new Noeud(i));
+			this.noeuds.add(new Node(i));
+			this.noeuds_hm.put(i, new Node(i));
 		}
 	}
 	
@@ -82,7 +82,7 @@ public class Graphe {
 	public void addNoeud(int n) {
 	
 		if( noeuds_hm.get(n) == null )
-			this.noeuds_hm.put(n, new Noeud(n));
+			this.noeuds_hm.put(n, new Node(n));
 		
 	}
 	
@@ -99,8 +99,8 @@ public class Graphe {
 			
 			addNoeud(x);
 			addNoeud(y);
-			Noeud source = getNoeud(x);
-			Noeud cible = getNoeud(y);
+			Node source = getNoeud(x);
+			Node cible = getNoeud(y);
 			
 			boolean exist = source != null && cible != null;
 			
@@ -133,7 +133,7 @@ public class Graphe {
 		Set<Integer> keys = noeuds_hm.keySet();
 		for(Integer key : keys)
 		{
-			Noeud n = noeuds_hm.get(key);
+			Node n = noeuds_hm.get(key);
 			LinkedList<Arc> arcs = n.getSucc();
 			
 			for(Arc arc : arcs)
@@ -160,7 +160,7 @@ public class Graphe {
 		for(Integer key : keys)
 		{
 			
-			Noeud n = noeuds_hm.get(key);
+			Node n = noeuds_hm.get(key);
 			if(!n.isMark())
 			{
 				//profR(n, profondeur);
@@ -172,11 +172,11 @@ public class Graphe {
 		
 	}
 	
-	public void largeur(Noeud n, int profondeur)
+	public void largeur(Node n, int profondeur)
 	{
 		
 		boolean increaseProf = false;
-		LinkedList<Noeud> F = new LinkedList<Noeud>();
+		LinkedList<Node> F = new LinkedList<Node>();
 		LinkedList<Arc> arcs = null;
 		
 		n.setMark(true);
@@ -191,7 +191,7 @@ public class Graphe {
 			
 			for(Arc arc : arcs)
 			{
-				Noeud x = arc.getCible();
+				Node x = arc.getCible();
 				
 				if(!x.isMark())
 				{
@@ -220,7 +220,7 @@ public class Graphe {
 		
 	}
 	
-	public void profR(Noeud n, int profondeur)
+	public void profR(Node n, int profondeur)
 	{
 		LinkedList<Arc> arcs = n.getSucc();
 		
@@ -231,7 +231,7 @@ public class Graphe {
 		for(Arc arc : arcs)
 		{
 			
-			Noeud succ = arc.getCible();
+			Node succ = arc.getCible();
 			
 			if(!succ.isMark()) {	
 				for(int i = -1; i < profondeur; i++)
@@ -245,9 +245,9 @@ public class Graphe {
 		
 	}
 	
-	public void profI(Noeud n, int profondeur)
+	public void profI(Node n, int profondeur)
 	{
-		Stack<Noeud> t = new Stack<Noeud>();
+		Stack<Node> t = new Stack<Node>();
 		n.setMark(true);
 		t.push(n);
 		System.out.println(n);
@@ -302,7 +302,7 @@ public class Graphe {
 		String buff = "Source,Target\n";
 		String sep = ",";
 		for (Integer key : keys) {
-			Noeud n = noeuds_hm.get(key);
+			Node n = noeuds_hm.get(key);
 			for (Arc a : n.getSucc()) {
 				buff += a.getSource().getId() + sep +
 				a.getCible().getId() + "\n";
@@ -354,7 +354,7 @@ public class Graphe {
 	 * @return un noeud
 	 */
 	
-	public Noeud getNoeud(int n)
+	public Node getNoeud(int n)
 	{		
 		return noeuds_hm.get(n);
 	}
@@ -364,7 +364,7 @@ public class Graphe {
 	 * @return un hash map
 	 */
 
-	public HashMap<Integer, Noeud> getNoeuds_hm() {
+	public HashMap<Integer, Node> getNoeuds_hm() {
 		return noeuds_hm;
 	}
 
@@ -373,7 +373,7 @@ public class Graphe {
 	 * @param noeuds_hm
 	 */
 	
-	public void setNoeuds_hm(HashMap<Integer, Noeud> noeuds_hm) {
+	public void setNoeuds_hm(HashMap<Integer, Node> noeuds_hm) {
 		this.noeuds_hm = noeuds_hm;
 	}
 	

@@ -2,17 +2,17 @@ package classes;
 
 public class Arc {
 
-	private Noeud source;
-	private Noeud cible;
+	private Node source;
+	private Node cible;
 	private double poids;
 	
-	public Arc(Noeud x, Noeud y)
+	public Arc(Node x, Node y)
 	{
 		this.source = x;
 		this.cible = y;
 	}
 	
-	public Arc(Noeud x, Noeud y, double poids)
+	public Arc(Node x, Node y, double poids)
 	{
 		this.source = x;
 		this.cible = y;
@@ -36,20 +36,20 @@ public class Arc {
 		this.poids = poids;
 	}
 
-	public void setSource(Noeud source) {
+	public void setSource(Node source) {
 		this.source = source;
 	}
 
-	public void setCible(Noeud cible) {
+	public void setCible(Node cible) {
 		this.cible = cible;
 	}
 
 
-	public Noeud getSource() {
+	public Node getSource() {
 		return source;
 	}
 
-	public Noeud getCible() {
+	public Node getCible() {
 		return cible;
 	}
 	

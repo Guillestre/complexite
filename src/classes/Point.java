@@ -1,6 +1,6 @@
 package classes;
 
-public class Point extends Noeud{
+public class Point extends Node{
 
 	private double x;
 	private double y;

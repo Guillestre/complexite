@@ -47,7 +47,7 @@ public class Node {
 	{
 		for(Arc arc : succ)
 		{
-			if( arc.getCible().getId() == j )
+			if( arc.getTarget().getId() == j )
 				return true;
 		}
 		
@@ -88,10 +88,10 @@ public class Node {
 		
 			for(Arc arc : succ)
 			{
-				Node voisin = arc.getCible();
+				Node voisin = arc.getTarget();
 				if(voisin.getId() < plusPetitIndice && !noeudsMarque.contains(voisin)) {
 					plusPetitIndice = voisin.getId();
-					noeud = arc.getCible();
+					noeud = arc.getTarget();
 				}
 			}
 			
@@ -113,18 +113,18 @@ public class Node {
 			
 			for(Arc arc : succ)
 			{
-				Node neighbour = arc.getCible();
+				Node neighbour = arc.getTarget();
 				boolean isGreater = true;
 				
 				if(!sortedNodes.contains(neighbour))
 				{
 					for(Arc tmpArc : succ)
 					{
-						Node tmpNeighbour = tmpArc.getCible();
+						Node tmpNeighbour = tmpArc.getTarget();
 						if(!tmpNeighbour.equals(neighbour) && !sortedNodes.contains(tmpNeighbour))
 							if(tmpNeighbour.getSucc().size() > neighbour.getSucc().size())
 								isGreater = false;
-						
+	
 					}
 					
 					if(isGreater) {

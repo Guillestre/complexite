@@ -138,9 +138,9 @@ public class Graphe {
 			
 			for(Arc arc : arcs)
 			{
-				if( arc.getSource().getId() == i && arc.getCible().getId() == j )
+				if( arc.getSource().getId() == i && arc.getTarget().getId() == j )
 					return true;
-				if( arc.getSource().getId() == j && arc.getCible().getId() == i )
+				if( arc.getSource().getId() == j && arc.getTarget().getId() == i )
 					return true;
 			}
 		}
@@ -191,7 +191,7 @@ public class Graphe {
 			
 			for(Arc arc : arcs)
 			{
-				Node x = arc.getCible();
+				Node x = arc.getTarget();
 				
 				if(!x.isMark())
 				{
@@ -231,7 +231,7 @@ public class Graphe {
 		for(Arc arc : arcs)
 		{
 			
-			Node succ = arc.getCible();
+			Node succ = arc.getTarget();
 			
 			if(!succ.isMark()) {	
 				for(int i = -1; i < profondeur; i++)
@@ -260,7 +260,7 @@ public class Graphe {
 			boolean allMarked = true;
 			for(Arc arc : arcs)
 			{
-				allMarked &= arc.getCible().isMark();
+				allMarked &= arc.getTarget().isMark();
 			}
 			
 			if(allMarked) {
@@ -274,14 +274,14 @@ public class Graphe {
 				{
 					
 					
-					if(!arc.getCible().isMark())
+					if(!arc.getTarget().isMark())
 					{
 						profondeur++;
 						for(int i = 0; i < profondeur; i++)
 							System.out.print("--");
-						arc.getCible().setMark(true);
-						t.push(arc.getCible());
-						System.out.println(arc.getCible());
+						arc.getTarget().setMark(true);
+						t.push(arc.getTarget());
+						System.out.println(arc.getTarget());
 						
 						break;
 					}
@@ -305,7 +305,7 @@ public class Graphe {
 			Node n = noeuds_hm.get(key);
 			for (Arc a : n.getSucc()) {
 				buff += a.getSource().getId() + sep +
-				a.getCible().getId() + "\n";
+				a.getTarget().getId() + "\n";
 				//System.out.println(a.getSource().getId() + sep +
 				//a.getCible().getId() + "\n");
 			}
@@ -339,7 +339,7 @@ public class Graphe {
 			s += "{";
 			for(Arc arc : this.getNoeud(key).getSucc())
 			{
-				s += " (" + arc.getSource().toString() + "," + arc.getCible().toString() + ") ";
+				s += " (" + arc.getSource().toString() + "," + arc.getTarget().toString() + ") ";
 			}
 			s += "}\n";
 		}

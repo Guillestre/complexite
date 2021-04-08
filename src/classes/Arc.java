@@ -49,7 +49,7 @@ public class Arc {
 		return source;
 	}
 
-	public Node getCible() {
+	public Node getTarget() {
 		return cible;
 	}
 	

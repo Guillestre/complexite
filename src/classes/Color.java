@@ -30,6 +30,8 @@ public class Color {
 		
 		nodes = increasingIndexRec(nodes_hm.get(lesserIndex), nodes);
 		System.out.println("Path selected : " + nodes);
+		System.out.println("--------------------------");
+		resetMarks(nodes);
 		return nodes;
 	}
 	
@@ -82,6 +84,8 @@ public class Color {
 		}
 		nodes = decreasingDegreeRec(nodes_hm.get(firstNode.getId()), nodes);
 		System.out.println("Path selected : " + nodes);
+		System.out.println("--------------------------");
+		resetMarks(nodes);
 		return nodes;
 	}
 	
@@ -113,18 +117,16 @@ public class Color {
 		System.out.println("---- SMALLEST LAST ----");
 		ArrayList<Node> init = transformToArray(nodes_hm);
 		ArrayList<Node> result = new ArrayList<Node>();
-		
-		System.out.println("old path : " + init);
-		
+			
 		while(result.size() != init.size())
 		{
 			Node lesserNodeDegree = getLesserNodeDegree(init);
 			result.add(lesserNodeDegree);
-		}
+		}	
 		
-		System.out.println("new path : " + result);
-		
-		
+		System.out.println("Path selected : " + result);
+		System.out.println("-----------------------");
+		resetMarks(result);
 		return inverse(result);
 	}
 	
@@ -197,40 +199,52 @@ public class Color {
 	public double sequential(ArrayList<Node> nodes)
 	{
 		//System.out.println("---- SEQUENTIAL ----");
-	
+		resetColors(nodes);
 		double omega = 0;
-		int[] colors = new int[nodes.size()];
 		
 		for(int i = 0; i < nodes.size(); i++)
 		{
 			int alpha = 1;
 			boolean isSafe = true;
+			LinkedList<Arc> currentSucc = nodes.get(i).getSucc();
 			
 			do {
 				isSafe = true;
-				for(Arc arc : nodes.get(i).getSucc())
+				for(Arc arc : currentSucc)
 				{
-					Node cible = arc.getCible();
-					int j = 0;
-					for(Node node : nodes)
-					{
-						if(cible.equals(node))
-							if(colors[j] == alpha)
-								isSafe = false;
-						j++;
-					}	
+					Node cible = arc.getTarget();
+					if(cible.getColor() == alpha) {
+						isSafe = false;
+						break;
+					}
+					
 				}	
+				
 				if(!isSafe)
 					alpha++;	
+				
 			}while(!isSafe);
 			
 			if(alpha > omega)
 				omega = alpha;
 		
-			colors[i] = alpha;
+			nodes.get(i).setColor(alpha);
 		}
 		//System.out.println("nb minimum colors : " + (int)omega);
+		//System.out.println("----------------");
 		return omega;
+	}
+	
+	private void resetColors(ArrayList<Node> nodes)
+	{
+		for(Node node : nodes)
+			node.setColor(0);
+	}
+	
+	private void resetMarks(ArrayList<Node> nodes)
+	{
+		for(Node node : nodes)
+			node.setMark(false);
 	}
 	
 	/**
@@ -244,12 +258,18 @@ public class Color {
 	
 	public List<Node> simulatedAnnealing(HashMap<Integer, Node> nodes_hm, double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst, TypePath typePath)
 	{
-		System.out.println("---- SIMULATED ANNEALING ----");
+		System.out.println("---- SIMULATED ANNEALING STARTED ----");
 		ArrayList<Node> currentSolution = getPath(nodes_hm, typePath);
 		double currentTemp = initTemp;
 		
 		ArrayList<Node> initSolution = currentSolution;
 		double initMinColors = sequential(initSolution);
+		
+		System.out.println("*** Init values ***");
+		System.out.println("Init solution : " + initSolution);
+		System.out.println("Init min colors : " + initMinColors);
+		System.out.println("Init temperature : " + initTemp);
+		System.out.println("*******************");
 		
 		int iter = 1;
 		
@@ -266,11 +286,12 @@ public class Color {
 					{
 						initSolution = currentSolution;
 						initMinColors = sequential(currentSolution);
+						System.out.println("\t-> Better solution found : " + initSolution + "\n\twith " + initMinColors + " min colors\n");
 					}
 				}
 				else
 				{
-					double p = (Math.random() * ((1.0) + 1.0));
+					double p = (Math.random());
 					double n =Math.exp(-( sequential(newSolution) - sequential(currentSolution) )/currentTemp);
 					if(p < n)
 						currentSolution = newSolution;
@@ -280,12 +301,14 @@ public class Color {
 			}
 			
 			currentTemp = alpha * currentTemp;
-			System.out.println("current temp : " + currentTemp);
+			System.out.println("\tTemperature is now at " + currentTemp + " degrees\n");
 			iter++;
 		}
 		
-		System.out.println("\nbest solution found : " + initSolution);
-		sequential(initSolution);
+		
+		System.out.println("\tBetter solution found during the program : " + initSolution + "\n\twith " + initMinColors + " min colors");
+		
+		System.out.println("\n---- SIMULATED ANNEALING FINISHED ----");
 		return initSolution;
 	}
 	

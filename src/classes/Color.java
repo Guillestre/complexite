@@ -196,11 +196,11 @@ public class Color {
 	 * @return the minimum number of colors used
 	 */
 	
-	public double sequential(ArrayList<Node> nodes)
+	public int sequential(ArrayList<Node> nodes)
 	{
 		//System.out.println("---- SEQUENTIAL ----");
 		resetColors(nodes);
-		double omega = 0;
+		int omega = 0;
 		
 		for(int i = 0; i < nodes.size(); i++)
 		{
@@ -232,6 +232,7 @@ public class Color {
 		}
 		//System.out.println("nb minimum colors : " + (int)omega);
 		//System.out.println("----------------");
+		resetColors(nodes);
 		return omega;
 	}
 	
@@ -278,7 +279,7 @@ public class Color {
 			int counter = 1;
 			while(counter < maxTconst)
 			{
-				ArrayList<Node> newSolution = transformSolution(currentSolution);
+				ArrayList<Node> newSolution = randomSwap(currentSolution);
 				if(sequential(newSolution) <= sequential(currentSolution))
 				{
 					currentSolution = newSolution;
@@ -317,7 +318,7 @@ public class Color {
 	 * @return the new solution
 	 */
 	
-	private ArrayList<Node> transformSolution(ArrayList<Node> solution)
+	private ArrayList<Node> randomSwap(ArrayList<Node> solution)
 	{
 		//System.out.println("*** Transform solution ***");
 		
@@ -350,36 +351,82 @@ public class Color {
 		return newSolution;
 	}
 	
-	public ArrayList<ArrayList<Node>> backtracking(HashMap<Integer, Node> nodes_hm)
+	public ArrayList<ArrayList<Node>> backtracking(HashMap<Integer, Node> nodes_hm, int m)
 	{
-		System.out.println("---- BACKTRACKING ----");
+		System.out.println("---- BACKTRACKING STARTED ----");
 		
 		ArrayList<Node> initPath = transformToArray(nodes_hm);
 		ArrayList<ArrayList<Node>> allPath = new ArrayList<ArrayList<Node>>();
 		allPath.add(initPath);
-		
-		System.out.println("\t-- All paths");
+
+		int n = 1;
 		while(allPath.size() != factorial(nodes_hm.size()))
 		{
-			initPath = transformSolution(initPath);
-			if(!allPath.contains(initPath)) { 
+			initPath = randomSwap(initPath);
+			
+			if(!allPath.contains(initPath)) {
 				allPath.add(initPath);
-				System.out.println("\t" + initPath + " : " + sequential(initPath));
+				n++;
 			}
 		}
-		System.out.println("");
 		
-		ArrayList<Node> betterPath = allPath.get(0);
+		int n2 = 0;
 		for(ArrayList<Node> path : allPath)
 		{
-			if(!path.equals(betterPath))
-				if(sequential(path) < sequential(betterPath))
-					betterPath = path;
+			boolean isColoriable = backtrackColor(path, 0, m, "");
+			if(isColoriable) {
+				System.out.println("Path: " + path + " -> " + sequential(path) + "\n");
+				n2++;
+			}
+			resetColors(path);
 		}
 		
-		System.out.println("better path found : " + betterPath);
+		System.out.println(n + " paths in total with " + n2 + " solutions with " + m + " colors at most");
 		
+		System.out.println("---- BACKTRACKING FINISHED ----");
 		return allPath;
+	}
+	
+	private boolean backtrackColor(ArrayList<Node> nodes, int currentPosition, int n, String str)
+	{
+		Node currentNode = null;
+		
+		if(currentPosition == nodes.size()) {
+			System.out.print("Coloration [" + str + "] \nwith the following ");
+			return true;
+		}
+		else
+			currentNode = nodes.get(currentPosition);
+		
+		for(int c = 1; c <= n; c++)
+		{
+			currentNode.setColor(c);
+			LinkedList<Arc> succ = currentNode.getSucc();
+			boolean isSafe = true;
+			for(Arc arc : succ)
+			{
+				Node neighbour = arc.getTarget();
+				if(neighbour.getColor() == c)
+					isSafe = false;
+			}
+			
+			if(isSafe)
+				return backtrackColor(nodes, currentPosition + 1, n, str + " " + currentNode.getColor() + " ");
+			
+		}
+		currentNode.setColor(0);
+		return false;
+	}
+	
+	private boolean allColored(ArrayList<Node> nodes)
+	{
+		for(Node node : nodes)
+		{
+			if(node.getColor() == 0)
+				return false;
+		}
+		
+		return true;
 	}
 	
 	public int factorial(int n) {

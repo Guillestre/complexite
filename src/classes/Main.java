@@ -8,7 +8,7 @@ public class Main {
 		// TODO Auto-generated method stub
 		
 		Graphe g1 = new Graphe("Graphe.csv");
-		Graphe g2 = new RandomGraphe(500, 0.8);
+		Graphe g2 = new RandomGraphe(1000, 0.8);
 		Color c = new Color();
 	
 		double initTemp = 500;
@@ -20,8 +20,9 @@ public class Main {
 		//c.simulatedAnnealing(g2.getNoeuds_hm(), initTemp, minLimitTemp, alpha, itermax, maxTconst, TypePath.increasingIndex);	
 		
 		//90 solutions coloriables avec au plus trois couleurs et 120 solutions coloriables avec quatre couleurs au plus
-		c.backtracking(g1.getNoeuds_hm(), 3);
+		//c.backtracking(g1.getNoeuds_hm(), 3);
 		
+		//int[][] m = c.toMatrix(g1.getNoeuds_hm());
 	}
 
 }

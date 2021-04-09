@@ -236,6 +236,7 @@ public class Color {
 		return omega;
 	}
 	
+	
 	private void resetColors(ArrayList<Node> nodes)
 	{
 		for(Node node : nodes)
@@ -455,6 +456,46 @@ public class Color {
 			default :
 				return smallest_last(nodes_hm);
 		
+		}
+		
+	}
+	
+	public int[][] toMatrix(HashMap<Integer, Node> nodes_hm)
+	{
+		int[][] m = new int[nodes_hm.size()][nodes_hm.size()];
+		ArrayList<Node> nodes = transformToArray(nodes_hm);
+
+		for(int i = 0; i < nodes_hm.size(); i++)
+		{
+			LinkedList<Arc> succ = nodes.get(i).getSucc();
+			for(int j = 0; j < nodes_hm.size(); j++)
+			{
+				if(i != j)
+				{
+					if(m[i][j] == 0)
+					{
+						for(Arc arc : succ)
+						{
+							Node neighbour = arc.getTarget();
+							if(neighbour.equals(nodes.get(j)))
+								m[i][j] = 1;
+						}
+					}
+				}
+			}
+		}
+		
+		return m;
+	}
+	
+	public void displayMatrix(int[][] m)
+	{
+		
+		for (int i = 0; i < m.length; i++) {
+		    for (int j = 0; j < m[i].length; j++) {
+		        System.out.print(m[i][j]);
+		    }
+		    System.out.println();
 		}
 		
 	}

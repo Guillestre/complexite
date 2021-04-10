@@ -1,5 +1,7 @@
 package classes;
 
+import java.util.Random;
+
 import types.TypePath;
 
 public class Main {
@@ -8,7 +10,7 @@ public class Main {
 		// TODO Auto-generated method stub
 		
 		Graphe g1 = new Graphe("Graphe.csv");
-		Graphe g2 = new RandomGraphe(1000, 0.8);
+		Graphe g2 = new RandomGraphe(7, 0.8);
 		Color c = new Color();
 	
 		double initTemp = 500;
@@ -16,13 +18,14 @@ public class Main {
 		double alpha = 0.99;
 		double itermax = 1000; 
 		double maxTconst = 2;
+	
+		//c.simulatedAnnealing(g2.getNoeuds_hm(), initTemp, minLimitTemp, alpha, itermax, maxTconst, TypePath.increasingIndex);
+	
+		c.backtracking(g1.getNoeuds_hm());
 		
-		//c.simulatedAnnealing(g2.getNoeuds_hm(), initTemp, minLimitTemp, alpha, itermax, maxTconst, TypePath.increasingIndex);	
+		//int omega = c.taboo(c.increasingIndex(g1.getNoeuds_hm()), 6);
+		//System.out.println(omega);
 		
-		//90 solutions coloriables avec au plus trois couleurs et 120 solutions coloriables avec quatre couleurs au plus
-		//c.backtracking(g1.getNoeuds_hm(), 3);
-		
-		//int[][] m = c.toMatrix(g1.getNoeuds_hm());
 	}
 
 }

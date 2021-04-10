@@ -1,8 +1,11 @@
 package classes;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import types.TypePath;
 
@@ -236,7 +239,6 @@ public class Color {
 		return omega;
 	}
 	
-	
 	private void resetColors(ArrayList<Node> nodes)
 	{
 		for(Node node : nodes)
@@ -352,43 +354,55 @@ public class Color {
 		return newSolution;
 	}
 	
-	public ArrayList<ArrayList<Node>> backtracking(HashMap<Integer, Node> nodes_hm, int m)
+	public ArrayList<ArrayList<Node>> backtracking(HashMap<Integer, Node> nodes_hm)
 	{
 		System.out.println("---- BACKTRACKING STARTED ----");
 		
 		ArrayList<Node> initPath = transformToArray(nodes_hm);
-		ArrayList<ArrayList<Node>> allPath = new ArrayList<ArrayList<Node>>();
-		allPath.add(initPath);
+		ArrayList<ArrayList<Node>> allPaths = getPermutations(initPath);
 
-		int n = 1;
-		while(allPath.size() != factorial(nodes_hm.size()))
+		int nbAllPaths = allPaths.size();
+		int nbColoriablePaths = 0;
+		
+		for(int m = 1; m <= initPath.size(); m++)
 		{
-			initPath = randomSwap(initPath);
+			nbColoriablePaths = displayColoration(allPaths, nbAllPaths, nbColoriablePaths, m);
 			
-			if(!allPath.contains(initPath)) {
-				allPath.add(initPath);
-				n++;
-			}
+			//If paths are found with m colors, then we finish backtracking
+			if(nbColoriablePaths > 0)
+				break;
+			nbColoriablePaths = 0;
 		}
-		
-		int n2 = 0;
-		for(ArrayList<Node> path : allPath)
-		{
-			boolean isColoriable = backtrackColor(path, 0, m, "");
-			if(isColoriable) {
-				System.out.println("Path: " + path + " -> " + sequential(path) + "\n");
-				n2++;
-			}
-			resetColors(path);
-		}
-		
-		System.out.println(n + " paths in total with " + n2 + " solutions with " + m + " colors at most");
 		
 		System.out.println("---- BACKTRACKING FINISHED ----");
-		return allPath;
+		return allPaths;
+	}
+
+
+	private int displayColoration(ArrayList<ArrayList<Node>> allPaths, int nbAllPaths, int nbColoriablePaths, int m) {
+		System.out.println("\n******** " + m + " colors at most **********************************************************\n");
+		for(ArrayList<Node> path : allPaths)
+		{
+			boolean isColoriable = backtrackColor(path, m);
+			
+			if(isColoriable) {
+				System.out.println("Path: " + path + " -> " + sequential(path) + "\n");
+				nbColoriablePaths++;
+			}
+		}
+		
+		System.out.println(nbAllPaths + " paths in total with " + nbColoriablePaths + " paths with " + m + " colors");
+		return nbColoriablePaths;
 	}
 	
-	private boolean backtrackColor(ArrayList<Node> nodes, int currentPosition, int n, String str)
+	private boolean backtrackColor(ArrayList<Node> nodes, int n)
+	{
+		boolean isColoriable = backtrackColorRec(nodes, 0, n, "");
+		resetColors(nodes);
+		return isColoriable;
+	}
+	
+	private boolean backtrackColorRec(ArrayList<Node> nodes, int currentPosition, int n, String str)
 	{
 		Node currentNode = null;
 		
@@ -412,23 +426,76 @@ public class Color {
 			}
 			
 			if(isSafe)
-				return backtrackColor(nodes, currentPosition + 1, n, str + " " + currentNode.getColor() + " ");
+				return backtrackColorRec(nodes, currentPosition + 1, n, str + " " + currentNode.getColor() + " ");
 			
 		}
 		currentNode.setColor(0);
 		return false;
 	}
 	
-	private boolean allColored(ArrayList<Node> nodes)
-	{
-		for(Node node : nodes)
-		{
-			if(node.getColor() == 0)
-				return false;
+	private  ArrayList<ArrayList<Node>> getPermutations(ArrayList<Node> nodes){  
+	 	ArrayList<ArrayList<Node>> result = new ArrayList<ArrayList<Node>>();
+        getPermutationsRec(nodes, 0, result);  
+        return result;    
+	 }  
+	  
+	 private void getPermutationsRec(ArrayList<Node> nodes, int pos, ArrayList<ArrayList<Node>> result){  
+		 
+        if(pos >= nodes.size() - 1){   
+        	ArrayList<Node> newSolution = new ArrayList<Node>();
+          
+            for(int i = 0; i < nodes.size() ; i++)
+            	newSolution.add(nodes.get(i));
+           
+            if(!result.contains(newSolution))
+            	result.add(newSolution);
+  
+            return;  
+        }  
+  
+        for(int i = pos; i < nodes.size(); i++){   
+          
+            Node t = nodes.get(pos);  
+            nodes.set(pos, nodes.get(i));
+            nodes.set(i, t);
+  
+            getPermutationsRec(nodes, pos+1, result);  
+  
+            t = nodes.get(pos);  
+            nodes.set(pos, nodes.get(i));
+            nodes.set(i, t);
+        }  
+	 }  
+	
+	 /*
+	 public void permutation(HashMap<Integer, Node> nodes_hm, ArrayList<Node> permutation,int color ) {
+			ArrayList<Node> uniqueList=transformToArray(nodes_hm);
+		    if (permutation == null) {
+		        assert 0 < uniqueList.size() : "Liste en entrer vide";
+		        permutation = new ArrayList<>(uniqueList.size());
+		        System.out.println("---- BACKTRACKING STARTED ----");
+		    }
+		    for (Node i : uniqueList) {
+		        if (permutation.contains(i)) {
+		            continue;
+		        }
+		        permutation.add(i);
+		        if (permutation.size() == uniqueList.size()) {
+		        	if(backtrackColorRec(permutation, 0, color, "")) {
+		        		System.out.println(Arrays.toString(permutation.toArray())+"->"+color+"\n\n");
+		        	}
+		        }
+		        if (permutation.size() < uniqueList.size()) {
+		        	 permutation(nodes_hm, permutation,color);
+		        }
+		        permutation.remove(permutation.size() - 1);
+		    }
+		    if(permutation.size()==0) {
+		    	System.out.println(factorial(nodes_hm.size())+" path in total ");
+		    	System.out.println("---- BACKTRACKING FINISH ----");
+		    }
 		}
-		
-		return true;
-	}
+		*/
 	
 	public int factorial(int n) {
 	    if (n>1)
@@ -460,44 +527,177 @@ public class Color {
 		
 	}
 	
-	public int[][] toMatrix(HashMap<Integer, Node> nodes_hm)
-	{
-		int[][] m = new int[nodes_hm.size()][nodes_hm.size()];
-		ArrayList<Node> nodes = transformToArray(nodes_hm);
+	
+	/**
+	* return a coloration with DSatur pocess
+	* @param nodes:ArrayList<Node>
+	* @return omega:int
+	 */
+	public int DSatur(ArrayList<Node> nodes) {
+		int omega = 0;
+		nodes.get(0).setColor(1);
+		nodes.remove(0);
+		while (!nodes.isEmpty()) {
+			int i = DSat(nodes);
+			Node node = nodes.get(i);
+			int alpha = 1;
+			for (Arc arc : node.getSucc()) {
+				Node target = arc.getTarget();
+				if (target.getColor() == alpha)
+					alpha++;
+			}
+			node.setColor(alpha);
+			nodes.remove(node);
+			if (alpha > omega)
+				omega = alpha;
+		}
+		return omega;
+	}
 
-		for(int i = 0; i < nodes_hm.size(); i++)
-		{
-			LinkedList<Arc> succ = nodes.get(i).getSucc();
-			for(int j = 0; j < nodes_hm.size(); j++)
-			{
-				if(i != j)
-				{
-					if(m[i][j] == 0)
-					{
-						for(Arc arc : succ)
-						{
-							Node neighbour = arc.getTarget();
-							if(neighbour.equals(nodes.get(j)))
-								m[i][j] = 1;
-						}
-					}
+	/**
+	* DSat function
+	* @param nodes:ArrayList<Node>
+	* @return result:int
+	 */
+	private int DSat(ArrayList<Node> nodes) {
+		Node result = null;
+		int min = (int) Double.POSITIVE_INFINITY;
+		for (Node node : nodes) {
+			ArrayList<Integer> colors = new ArrayList<>();
+			for (Arc arc : node.getSucc()) {
+				Node target = arc.getTarget();
+				if (!colors.contains(target.getColor()))
+					colors.add(target.getColor());
+			}
+			if (colors.size() < min) {
+				min = colors.size();
+				result = node;
+			}
+		}
+		return nodes.indexOf(result);
+	}
+
+	/**
+	 * return a coloration with taboo process
+	 * @param nodes:ArrayList
+	 * @return omega:int
+	 */
+	public int taboo(ArrayList<Node> nodes, int iter) {
+		int k = sequential(nodes);
+		int omega = k;
+		while (true) {
+			k -= 1;
+			if (isKColoriable(nodes, k, iter))
+				omega = k;
+			else
+				return omega;
+		}
+	}
+	
+	/**
+	 * check if a graph is k-coloriable
+	 * @param nodes:Arraylist
+	 * @param k:int
+	 * @param iter:int
+	 * @return boolean
+	 */
+	private boolean isKColoriable(ArrayList<Node> nodes, int k, int iter) {
+		// colors initialisation
+		int[] c = new int[k];
+		for (int i = 0; i < c.length; i++) {
+			c[i] = i + 1;
+		}
+		// memory initialisation
+		ArrayList<ArrayList<Integer>> M = new ArrayList<>();
+		for (int i = 0; i < nodes.size(); i++) {
+			ArrayList<Integer> m = new ArrayList<>();
+			for (int j = 0; j < c.length + 1; j++) {
+				m.add(j, 0);
+				M.add(i, m);
+			}
+		}
+		// --Initialisation--
+		Collections.shuffle(nodes); // random route
+		for (Node node : nodes) { // sequential coloration
+			ArrayList<Integer> tmpColors = new ArrayList<>();
+			for (Arc arc : node.getSucc()) {
+				Node target = arc.getTarget();
+				if (!tmpColors.contains(target.getColor()))
+					tmpColors.add(target.getColor());
+			}
+			int alpha = 1;
+			while (tmpColors.contains(alpha)) {
+				alpha++;
+			}
+			if (alpha > k)
+				alpha = c[randomGenerator(1, k) - 1];
+			node.setColor(alpha);
+		}
+		// --Transformation locale--
+		int index;
+		int color;
+		for (int cpt = 0; cpt < 10; cpt++) {
+			do {
+				index = randomGenerator(0, nodes.size() - 1);
+				color = randomGenerator(1, k + 1);
+				System.out.println(color);
+			} while (M.get(index).get(color) != 0);
+			M.get(index).set(color, iter);
+			nodes.get(index).setColor(color);
+			if (f(nodes) ==0)
+			return true;
+			// update memory
+			for (int i = 0; i < nodes.size(); i++) {
+				for (int j = 0; j < c.length; j++) {
+					int tmp = M.get(i).get(j);
+					if (tmp != 0)
+						M.get(i).set(j, tmp - 1);
 				}
 			}
 		}
-		
-		return m;
+		return false;
+	}
+
+	/**
+	 * objective function
+	 * @param nodes:ArrayList
+	 * @return result:int
+	 */
+	private int f(ArrayList < Node > nodes) {
+		int result = 0;
+		for (Node node : nodes) {
+			for (Arc arc : node.getSucc()) {
+				result += g(arc);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * g function
+	 * @param arc:Arc
+	 * @return int
+	 */
+	private int g (Arc arc){
+		if (arc.getSource().getColor() == arc.getTarget().getColor())
+			return 1;
+		else
+			return 0;
+	}
+
+	/**
+	 * generate a random number between two bounds
+	 * @param inf:int
+	 * @param sup:int
+	 * @return random:int
+	 */
+	private int randomGenerator ( int inf, int sup){
+		if (inf == sup)
+			return inf;
+		Random r = new Random();
+		int random = inf + r.nextInt(sup - inf);
+		return random;
 	}
 	
-	public void displayMatrix(int[][] m)
-	{
-		
-		for (int i = 0; i < m.length; i++) {
-		    for (int j = 0; j < m[i].length; j++) {
-		        System.out.print(m[i][j]);
-		    }
-		    System.out.println();
-		}
-		
-	}
 	
 }

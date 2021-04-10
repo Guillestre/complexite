@@ -23,7 +23,7 @@ public class Main {
 	
 		//c.backtracking(g1.getNoeuds_hm());
 		
-		int omega = c.taboo(c.increasingIndex(g1.getNoeuds_hm()), 6);
+		int omega = c.taboo(c.increasingIndex(g1.getNoeuds_hm()), 3);
 		System.out.println("omega : "+omega);
 		
 	}

@@ -659,7 +659,7 @@ public class Color {
 		// --Transformation locale--
 		int index;
 		int color;
-		for (int cpt = 0; cpt < iter; cpt++) {
+		for (int cpt = 0; cpt < 10; cpt++) {
 			do {
 				index = randomGenerator(0, nodes.size() - 1);
 				color = randomGenerator(1, k + 1);

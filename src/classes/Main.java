@@ -9,8 +9,8 @@ public class Main {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		Graphe g1 = new Graphe("Graphe.csv");
-		Graphe g2 = new RandomGraphe(7, 0.8);
+		//Graphe g1 = new Graphe("Graphe.csv");
+		Graphe g2 = new RandomGraphe(100, 0.9);
 		Color c = new Color();
 	
 		double initTemp = 500;
@@ -22,8 +22,8 @@ public class Main {
 		//c.simulatedAnnealing(g2.getNoeuds_hm(), initTemp, minLimitTemp, alpha, itermax, maxTconst, TypePath.increasingIndex);
 	
 		//c.backtracking(g1.getNoeuds_hm());
-		
-		int omega = c.taboo(c.increasingIndex(g1.getNoeuds_hm()), 3);
+		System.out.println(g2);
+		int omega = c.taboo(c.increasingIndex(g2.getNoeuds_hm()), 10);
 		System.out.println("omega : "+omega);
 		
 	}

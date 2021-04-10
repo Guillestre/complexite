@@ -41,7 +41,7 @@ public class Color {
 	
 	private ArrayList<Node> increasingIndexRec(Node n, ArrayList<Node> nodesTmp)
 	{
-		if(!n.getSucc().isEmpty() && !n.isMark())
+		if(n != null && !n.getSucc().isEmpty() && !n.isMark())
 		{
 			n.setMark(true);
 			nodesTmp.add(n);
@@ -216,6 +216,7 @@ public class Color {
 				omega = alpha;
 			node.setColor(alpha);
 		}
+		resetColors(nodes);
 		return omega;
 	}
 
@@ -608,13 +609,14 @@ public class Color {
 	public int taboo(ArrayList<Node> nodes, int iter) {
 		int k = sequential(nodes);
 		int omega = k;
-		while (true) {
+		while (k > 0) {
 			k -= 1;
 			if (isKColoriable(nodes, k, iter))
 				omega = k;
 			else
 				return omega;
 		}
+		return omega;
 	}
 	
 	/**
@@ -659,10 +661,14 @@ public class Color {
 		// --Transformation locale--
 		int index;
 		int color;
-		for (int cpt = 0; cpt < 10; cpt++) {
+		for (int cpt = 0; cpt < nodes.size(); cpt++) {
+			int br = 0;
 			do {
 				index = randomGenerator(0, nodes.size() - 1);
 				color = randomGenerator(1, k + 1);
+				br++;
+				if (br > M.size() * k)
+					return false;
 			} while (M.get(index).get(color) != 0);
 			M.get(index).set(color, iter);
 			nodes.get(index).setColor(color);

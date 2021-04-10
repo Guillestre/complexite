@@ -21,10 +21,10 @@ public class Main {
 	
 		//c.simulatedAnnealing(g2.getNoeuds_hm(), initTemp, minLimitTemp, alpha, itermax, maxTconst, TypePath.increasingIndex);
 	
-		c.backtracking(g1.getNoeuds_hm());
+		//c.backtracking(g1.getNoeuds_hm());
 		
-		//int omega = c.taboo(c.increasingIndex(g1.getNoeuds_hm()), 6);
-		//System.out.println(omega);
+		int omega = c.taboo(c.increasingIndex(g1.getNoeuds_hm()), 6);
+		System.out.println("omega : "+omega);
 		
 	}
 

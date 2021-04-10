@@ -198,7 +198,29 @@ public class Color {
 	 * @param nodes
 	 * @return the minimum number of colors used
 	 */
-	
+	public int sequential(ArrayList<Node> nodes) {
+		int omega = 0;
+		for (Node node : nodes) {
+			ArrayList<Integer> colors = new ArrayList<>();
+			// on récupère les couleurs des voisins
+			for (Arc arc : node.getSucc()) {
+				Node target = arc.getTarget();
+				if (!colors.contains(target.getColor()) && target.getColor() != 0)
+					colors.add(target.getColor());
+			}
+			int alpha = 1;
+			while (colors.contains(alpha)) {
+				alpha++;
+			}
+			if (alpha > omega)
+				omega = alpha;
+			node.setColor(alpha);
+		}
+		return omega;
+	}
+
+
+	/*
 	public int sequential(ArrayList<Node> nodes)
 	{
 		//System.out.println("---- SEQUENTIAL ----");
@@ -238,6 +260,7 @@ public class Color {
 		resetColors(nodes);
 		return omega;
 	}
+	 */
 	
 	private void resetColors(ArrayList<Node> nodes)
 	{
@@ -636,11 +659,10 @@ public class Color {
 		// --Transformation locale--
 		int index;
 		int color;
-		for (int cpt = 0; cpt < 10; cpt++) {
+		for (int cpt = 0; cpt < iter; cpt++) {
 			do {
 				index = randomGenerator(0, nodes.size() - 1);
 				color = randomGenerator(1, k + 1);
-				System.out.println(color);
 			} while (M.get(index).get(color) != 0);
 			M.get(index).set(color, iter);
 			nodes.get(index).setColor(color);

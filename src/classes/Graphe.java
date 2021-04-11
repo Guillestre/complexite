@@ -101,7 +101,7 @@ public class Graphe {
 			addNoeud(y);
 			Node source = getNoeud(x);
 			Node cible = getNoeud(y);
-			
+			//System.out.println("(" + source.getId() + ", " + cible.getId() + ")");
 			boolean exist = source != null && cible != null;
 			
 			if(exist)

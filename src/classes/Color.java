@@ -5,14 +5,11 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.Set;
-
-import com.sun.jdi.Type;
-
 import types.TypeMode;
 import types.TypePath;
 
 public class Color {
-
+	
 	/******** ALGORITHMS ************************************************************************************/
 	
 	/**
@@ -256,6 +253,7 @@ public class Color {
 			if(!nodes.get(i).isStartColor()) {
 				nodes.get(i).setColor(alpha);
 			}
+			
 		}
 		
 		return omega;
@@ -313,7 +311,7 @@ public class Color {
 	 * @return the best solution found
 	 */
 	
-	public static ArrayList<Node> simulatedAnnealing(Graphe g, double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst, TypePath typePath, TypeMode typeMode)
+	public static int simulatedAnnealing(Graphe g, double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst, TypePath typePath, TypeMode typeMode)
 	{
 		switch(typeMode)
 		{
@@ -324,14 +322,14 @@ public class Color {
 		}
 	}
 	
-	private static ArrayList<Node> normalSA(Graphe g, double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst, TypePath typePath, TypeMode typeMode)
+	private static int normalSA(Graphe g, double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst, TypePath typePath, TypeMode typeMode)
 	{
 		System.out.println("---- SIMULATED ANNEALING STARTED ----");
 		ArrayList<Node> currentSolution = getPath(g, typePath);
 		double currentTemp = initTemp;
 		
 		ArrayList<Node> initSolution = currentSolution;
-		double initMinColors = sequential(initSolution, typeMode);
+		int initMinColors = sequential(initSolution, typeMode);
 		
 		System.out.println("*** Init values ***");
 		System.out.println("Init solution : " + initSolution);
@@ -361,7 +359,6 @@ public class Color {
 				{
 					double p = (Math.random());
 					double n =Math.exp(-( (double)sequential(newSolution, typeMode) - (double)sequential(currentSolution, typeMode) )/currentTemp);
-					System.out.println(n);
 					if(p < n)
 						currentSolution = newSolution;
 				}
@@ -378,16 +375,16 @@ public class Color {
 		System.out.println("\tBetter solution found during the program : " + initSolution + "\n\twith " + initMinColors + " min colors");
 		
 		System.out.println("\n---- SIMULATED ANNEALING FINISHED ----");
-		return initSolution;
+		return initMinColors;
 	}
-	
-	private static ArrayList<Node> sudokuSA(Graphe g, double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst, TypePath typePath, TypeMode typeMode)
+	 
+	private static int sudokuSA(Graphe g, double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst, TypePath typePath, TypeMode typeMode)
 	{
 		ArrayList<Node> currentSolution = getPath(g, typePath);
 		double currentTemp = initTemp;
 		
 		ArrayList<Node> initSolution = currentSolution;
-		double initMinColors = sequential(initSolution, typeMode);
+		int initMinColors = sequential(initSolution, typeMode);
 		
 		int iter = 1;
 		while( currentTemp > minLimitTemp && iter < itermax )
@@ -409,9 +406,7 @@ public class Color {
 				{
 					double p = (Math.random());
 					double n =Math.exp(-( (double)sequential(newSolution, typeMode) - (double)sequential(currentSolution, typeMode) )/currentTemp);
-					//System.out.println("new sequential : " + sequential(newSolution, typeMode));
-					//System.out.println("current sequential : " + sequential(currentSolution, typeMode));
-					//System.out.println(n);
+	
 					if(p < n)
 						currentSolution = newSolution;
 				}
@@ -421,8 +416,8 @@ public class Color {
 			
 			currentTemp = alpha * currentTemp;
 		}
-		
-		return initSolution;
+		sequential(initSolution, typeMode);
+		return initMinColors;
 	}
 	
 	
@@ -466,7 +461,7 @@ public class Color {
 	 * @return
 	 */
 	
-	public static ArrayList<ArrayList<Node>> backtracking(Graphe g)
+	public static int backtracking(Graphe g)
 	{
 		System.out.println("---- BACKTRACKING STARTED ----");
 		HashMap<Integer, Node> nodes_hm = g.getNoeuds_hm();
@@ -476,17 +471,27 @@ public class Color {
 		int nbAllPaths = allPaths.size();
 		int nbColoriablePaths = 0;
 		
+		//Display best colorations with the lower chromatic number at most
 		for(int m = 1; m <= initPath.size(); m++)
 		{
 			nbColoriablePaths = displayColoration(allPaths, nbAllPaths, nbColoriablePaths, m);
 			
-			if(nbColoriablePaths > 0)
+			if(nbColoriablePaths == nbAllPaths)
 				break;
 			nbColoriablePaths = 0;
 		}
 		
+		//Getting chromatic number
+		int omega = Integer.MAX_VALUE;
+		for(ArrayList<Node> path : allPaths)
+		{
+			int m = sequential(path, TypeMode.normal);
+			if( m < omega )
+				omega = m;
+		}
+		
 		System.out.println("---- BACKTRACKING FINISHED ----");
-		return allPaths;
+		return omega;
 	}
 	
 	/**
@@ -510,7 +515,7 @@ public class Color {
 			}
 		}
 		
-		System.out.println(nbAllPaths + " paths in total with " + nbColoriablePaths + " paths with " + m + " colors");
+		System.out.println(nbAllPaths + " paths in total with at most " + nbColoriablePaths + " paths with " + m + " colors");
 		return nbColoriablePaths;
 	}
 	

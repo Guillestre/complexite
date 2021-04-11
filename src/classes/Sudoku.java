@@ -221,7 +221,7 @@ public class Sudoku extends Graphe {
 	private void addRandomNumber(int min_row, int max_row, int min_col, int max_col)
 	{
 		int Min = 2;
-		int Max = 4;
+		int Max = 3;
 		int nbColorToAdd = Min + (int)(Math.random() * ((Max - Min) + 1));
 		int nbColorAdded = 0;
 		while(nbColorAdded != nbColorToAdd) {
@@ -265,6 +265,30 @@ public class Sudoku extends Graphe {
 		
 	}
 	
+	private void addColor(int i , int j)
+	{
+		
+	
+		Node node = this.getNoeud(m_ids[i][j]);
+		
+		ArrayList<Integer> colors = new ArrayList<>();
+		for (Arc arc : node.getSucc()) {
+			Node target = arc.getTarget();
+			if (!colors.contains(target.getColor()) && target.getColor() != 0)
+				colors.add(target.getColor());
+		}
+		int alpha = 1;
+		while (colors.contains(alpha)) {
+			alpha++;
+		}
+		node.setStartColor(true);
+		node.setColor(alpha);
+		
+		m_colors[i][j] = alpha;
+
+
+	}
+	
 	public void resolveSA(double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst)
 	{	
 		generateRandomColors();
@@ -288,7 +312,7 @@ public class Sudoku extends Graphe {
 		int m = 0;
 		
 		while(m != 9)
-			m = Color.sequential(Color.simulatedAnnealing(
+			m = Color.simulatedAnnealing(
 					this, 
 					initTemp, 
 					minLimitTemp, 
@@ -296,7 +320,7 @@ public class Sudoku extends Graphe {
 					itermax, 
 					maxTconst, 
 					TypePath.normal, 
-					TypeMode.sudoku), TypeMode.sudoku);
+					TypeMode.sudoku);
 		
 		System.out.println("Solving with simulated annealing finished");
 	}

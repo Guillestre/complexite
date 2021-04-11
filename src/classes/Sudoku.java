@@ -1,7 +1,7 @@
 package classes;
 
 import java.util.ArrayList;
-import types.TypeMode;
+import types.TypeDisplay;
 import types.TypePath;
 
 public class Sudoku extends Graphe {
@@ -104,9 +104,7 @@ public class Sudoku extends Graphe {
 			for(Node node : col)
 			{
 				for(Node tmpNode : col)
-				{
 					this.addArc(node.getId(), tmpNode.getId());
-				}
 			}
 		}
 		
@@ -117,22 +115,17 @@ public class Sudoku extends Graphe {
 		for(int i = 0; i < 9; i++)
 		{
 			for(int j = 0; j < 9; j++)
-			{
 				addBlockConnection(i, j);
-			}
 		}
 	}
 	
 	private void updateSudoku()
 	{
-		int k = 1;
+
 		for(int i = 0; i < 9; i++)
 		{
 			for(int j = 0; j < 9; j++)
-			{
-				m_colors[i][j] = this.getNoeud(k).getColor();
-				k++;
-			}
+				m_colors[i][j] = this.getNoeud(m_ids[i][j]).getColor();
 		}
 		
 	}
@@ -204,21 +197,21 @@ public class Sudoku extends Graphe {
 		ArrayList<Node> nodes = Color.transformToArrayList(getNoeuds_hm());
 		Color.resetColors(nodes);
 		
-		addRandomNumber(0, 2, 0, 2);
-		addRandomNumber(0, 2, 3, 5);
-		addRandomNumber(0, 2, 6, 8);
+		addRandomColor(0, 2, 0, 2);
+		addRandomColor(0, 2, 3, 5);
+		addRandomColor(0, 2, 6, 8);
 		
-		addRandomNumber(3, 5, 0, 2);
-		addRandomNumber(3, 5, 3, 5);
-		addRandomNumber(3, 5, 6, 8);
+		addRandomColor(3, 5, 0, 2);
+		addRandomColor(3, 5, 3, 5);
+		addRandomColor(3, 5, 6, 8);
 		
-		addRandomNumber(6, 8, 0, 2);
-		addRandomNumber(6, 8, 3, 5);
-		addRandomNumber(6, 8, 6, 8);
+		addRandomColor(6, 8, 0, 2);
+		addRandomColor(6, 8, 3, 5);
+		addRandomColor(6, 8, 6, 8);
 		
 	}
 	
-	private void addRandomNumber(int min_row, int max_row, int min_col, int max_col)
+	private void addRandomColor(int min_row, int max_row, int min_col, int max_col)
 	{
 		int Min = 2;
 		int Max = 3;
@@ -265,34 +258,8 @@ public class Sudoku extends Graphe {
 		
 	}
 	
-	private void addColor(int i , int j)
-	{
-		
-	
-		Node node = this.getNoeud(m_ids[i][j]);
-		
-		ArrayList<Integer> colors = new ArrayList<>();
-		for (Arc arc : node.getSucc()) {
-			Node target = arc.getTarget();
-			if (!colors.contains(target.getColor()) && target.getColor() != 0)
-				colors.add(target.getColor());
-		}
-		int alpha = 1;
-		while (colors.contains(alpha)) {
-			alpha++;
-		}
-		node.setStartColor(true);
-		node.setColor(alpha);
-		
-		m_colors[i][j] = alpha;
-
-
-	}
-	
 	public void resolveSA(double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst)
 	{	
-		generateRandomColors();
-		updateSudoku();
 		
 		System.out.println("\n--- BEFORE ---");
 		displaySudoku();
@@ -320,7 +287,7 @@ public class Sudoku extends Graphe {
 					itermax, 
 					maxTconst, 
 					TypePath.normal, 
-					TypeMode.sudoku);
+					TypeDisplay.hidden);
 		
 		System.out.println("Solving with simulated annealing finished");
 	}
@@ -390,6 +357,28 @@ public class Sudoku extends Graphe {
 			
 		}
 		System.out.println(str);
+	}
+	
+	public void setSudoku(int[][] m)
+	{
+		for(int i = 0; i < 9; i++)
+		{
+			for(int j = 0; j < 9; j++)
+			{
+				Node node = this.getNoeud(m_ids[i][j]);
+				
+				m_colors[i][j] = m[i][j];
+				node.setColor(m[i][j]);
+				
+				if(m[i][j] != 0)
+					node.setStartColor(true);
+			}
+		}
+	}
+	
+	public void setRandomSudoku()
+	{
+		generateRandomColors();
 	}
 	
 }

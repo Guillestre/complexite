@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.Set;
-import types.TypeMode;
+import types.TypeDisplay;
 import types.TypePath;
 
 public class Color {
@@ -182,45 +182,8 @@ public class Color {
 	 * @param nodes
 	 * @return the minimum number of colors used
 	 */
-	public static int sequential(ArrayList<Node> nodes, TypeMode type) {
+	public static int sequential(ArrayList<Node> nodes) {
 	
-		switch (type) {
-		
-		case sudoku :
-			return sudokuSequential(nodes);
-		default :
-			return normalSequential(nodes);
-		}
-		
-	}
-	
-	private static int normalSequential(ArrayList<Node> nodes)
-	{
-		int omega = 0;
-		resetColors(nodes);
-		for (Node node : nodes) {
-			ArrayList<Integer> colors = new ArrayList<>();
-			// on récupère les couleurs des voisins
-			for (Arc arc : node.getSucc()) {
-				Node target = arc.getTarget();
-				if (!colors.contains(target.getColor()) && target.getColor() != 0)
-					colors.add(target.getColor());
-			}
-			int alpha = 1;
-			while (colors.contains(alpha)) {
-				alpha++;
-			}
-			if (alpha > omega)
-				omega = alpha;
-			node.setColor(alpha);
-		}
-		resetColors(nodes);
-		return omega;
-	}
-	
-	
-	private static int sudokuSequential(ArrayList<Node> nodes)
-	{
 		resetColors(nodes);
 		int omega = 0;
 		
@@ -257,51 +220,9 @@ public class Color {
 		}
 		
 		return omega;
+		
 	}
 
-
-	/*
-	public int sequential(ArrayList<Node> nodes)
-	{
-		//System.out.println("---- SEQUENTIAL ----");
-		resetColors(nodes);
-		int omega = 0;
-		
-		for(int i = 0; i < nodes.size(); i++)
-		{
-			int alpha = 1;
-			boolean isSafe = true;
-			LinkedList<Arc> currentSucc = nodes.get(i).getSucc();
-			
-			do {
-				isSafe = true;
-				for(Arc arc : currentSucc)
-				{
-					Node cible = arc.getTarget();
-					if(cible.getColor() == alpha) {
-						isSafe = false;
-						break;
-					}
-					
-				}	
-				
-				if(!isSafe)
-					alpha++;	
-				
-			}while(!isSafe);
-			
-			if(alpha > omega)
-				omega = alpha;
-		
-			nodes.get(i).setColor(alpha);
-		}
-		//System.out.println("nb minimum colors : " + (int)omega);
-		//System.out.println("----------------");
-		resetColors(nodes);
-		return omega;
-	}
-	 */
-	
 	/**
 	 * Return the best solution with a given initial solution
 	 * @param initTemp
@@ -311,31 +232,24 @@ public class Color {
 	 * @return the best solution found
 	 */
 	
-	public static int simulatedAnnealing(Graphe g, double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst, TypePath typePath, TypeMode typeMode)
+	public static int simulatedAnnealing(Graphe g, double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst, TypePath typePath, TypeDisplay typeDisplay)
 	{
-		switch(typeMode)
-		{
-		case sudoku :
-			return sudokuSA(g, initTemp, minLimitTemp, alpha, itermax, maxTconst, typePath, typeMode);
-		default :
-			return normalSA(g, initTemp, minLimitTemp, alpha, itermax, maxTconst, typePath, typeMode);
-		}
-	}
-	
-	private static int normalSA(Graphe g, double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst, TypePath typePath, TypeMode typeMode)
-	{
-		System.out.println("---- SIMULATED ANNEALING STARTED ----");
+		if(typeDisplay == TypeDisplay.normal)
+			System.out.println("---- SIMULATED ANNEALING STARTED ----");
+		
 		ArrayList<Node> currentSolution = getPath(g, typePath);
 		double currentTemp = initTemp;
 		
 		ArrayList<Node> initSolution = currentSolution;
-		int initMinColors = sequential(initSolution, typeMode);
+		int initMinColors = sequential(initSolution);
 		
-		System.out.println("*** Init values ***");
-		System.out.println("Init solution : " + initSolution);
-		System.out.println("Init min colors : " + initMinColors);
-		System.out.println("Init temperature : " + initTemp);
-		System.out.println("*******************");
+		if(typeDisplay == TypeDisplay.normal) {
+			System.out.println("*** Init values ***");
+			System.out.println("Init solution : " + initSolution);
+			System.out.println("Init min colors : " + initMinColors);
+			System.out.println("Init temperature : " + initTemp);
+			System.out.println("*******************");
+		}
 		
 		int iter = 1;
 		
@@ -345,20 +259,23 @@ public class Color {
 			while(counter < maxTconst)
 			{
 				ArrayList<Node> newSolution = randomSwap(currentSolution);
-				if(sequential(newSolution, typeMode) <= sequential(currentSolution, typeMode))
+				if(sequential(newSolution) <= sequential(currentSolution))
 				{
 					currentSolution = newSolution;
-					if(sequential(currentSolution, typeMode) < initMinColors)
+					if(sequential(currentSolution) < initMinColors)
 					{
 						initSolution = currentSolution;
-						initMinColors = sequential(currentSolution, typeMode);
-						System.out.println("\t-> Better solution found : " + initSolution + "\n\twith " + initMinColors + " min colors\n");
+						initMinColors = sequential(currentSolution);
+						if(typeDisplay == TypeDisplay.normal) 
+							System.out.println("\t-> Better solution found : " + initSolution + "\n\twith " + initMinColors + " min colors\n");
+						
 					}
 				}
 				else
 				{
 					double p = (Math.random());
-					double n =Math.exp(-( (double)sequential(newSolution, typeMode) - (double)sequential(currentSolution, typeMode) )/currentTemp);
+					double n =Math.exp(-( (double)sequential(newSolution) - (double)sequential(currentSolution) )/currentTemp);
+					
 					if(p < n)
 						currentSolution = newSolution;
 				}
@@ -367,56 +284,20 @@ public class Color {
 			}
 			
 			currentTemp = alpha * currentTemp;
-			System.out.println("\tTemperature is now at " + currentTemp + " degrees\n");
+			if(typeDisplay == TypeDisplay.normal) 
+				System.out.println("\tTemperature is now at " + currentTemp + " degrees\n");
+			
 			iter++;
 		}
 		
-		
+		if(typeDisplay == TypeDisplay.normal) 
 		System.out.println("\tBetter solution found during the program : " + initSolution + "\n\twith " + initMinColors + " min colors");
 		
-		System.out.println("\n---- SIMULATED ANNEALING FINISHED ----");
-		return initMinColors;
-	}
-	 
-	private static int sudokuSA(Graphe g, double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst, TypePath typePath, TypeMode typeMode)
-	{
-		ArrayList<Node> currentSolution = getPath(g, typePath);
-		double currentTemp = initTemp;
 		
-		ArrayList<Node> initSolution = currentSolution;
-		int initMinColors = sequential(initSolution, typeMode);
+		if(typeDisplay == TypeDisplay.normal) 
+			System.out.println("\n---- SIMULATED ANNEALING FINISHED ----");
 		
-		int iter = 1;
-		while( currentTemp > minLimitTemp && iter < itermax )
-		{
-			int counter = 1;
-			while(counter < maxTconst)
-			{
-				ArrayList<Node> newSolution = randomSwap(currentSolution);
-				if(sequential(newSolution, typeMode) <= sequential(currentSolution, typeMode))
-				{
-					currentSolution = newSolution;
-					if(sequential(currentSolution, typeMode) < initMinColors)
-					{
-						initSolution = currentSolution;
-						initMinColors = sequential(currentSolution, typeMode);
-					}
-				}
-				else
-				{
-					double p = (Math.random());
-					double n =Math.exp(-( (double)sequential(newSolution, typeMode) - (double)sequential(currentSolution, typeMode) )/currentTemp);
-	
-					if(p < n)
-						currentSolution = newSolution;
-				}
-				
-				counter++;
-			}
-			
-			currentTemp = alpha * currentTemp;
-		}
-		sequential(initSolution, typeMode);
+		sequential(initSolution);
 		return initMinColors;
 	}
 	
@@ -476,7 +357,7 @@ public class Color {
 		{
 			nbColoriablePaths = displayColoration(allPaths, nbAllPaths, nbColoriablePaths, m);
 			
-			if(nbColoriablePaths == nbAllPaths)
+			if(nbColoriablePaths > 0)
 				break;
 			nbColoriablePaths = 0;
 		}
@@ -485,7 +366,7 @@ public class Color {
 		int omega = Integer.MAX_VALUE;
 		for(ArrayList<Node> path : allPaths)
 		{
-			int m = sequential(path, TypeMode.normal);
+			int m = sequential(path);
 			if( m < omega )
 				omega = m;
 		}
@@ -510,12 +391,12 @@ public class Color {
 			boolean isColoriable = backtrackColor(path, m);
 			
 			if(isColoriable) {
-				System.out.println("Path: " + path + " -> " + sequential(path, TypeMode.normal) + "\n");
+				System.out.println("Path: " + path + " -> " + sequential(path) + "\n");
 				nbColoriablePaths++;
 			}
 		}
 		
-		System.out.println(nbAllPaths + " paths in total with at most " + nbColoriablePaths + " paths with " + m + " colors");
+		System.out.println(nbAllPaths + " paths in total with " + nbColoriablePaths + " paths with at most " + m + " colors");
 		return nbColoriablePaths;
 	}
 	
@@ -660,7 +541,7 @@ public class Color {
 	 * @return omega:int
 	 */
 	public static int taboo(ArrayList<Node> nodes, int iter) {
-		int k = sequential(nodes, TypeMode.normal);
+		int k = sequential(nodes);
 		int omega = k;
 		while (k > 0) {
 			k -= 1;

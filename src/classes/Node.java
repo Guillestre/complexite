@@ -6,6 +6,7 @@ public class Node {
 	
 	private int id;
 	private LinkedList<Arc> succ;
+	private boolean startColor;
 	private boolean mark;
 	private int couleur;
 	
@@ -73,6 +74,14 @@ public class Node {
 
 	public void setColor(int couleur) {
 		this.couleur = couleur;
+	}
+
+	public boolean isStartColor() {
+		return startColor;
+	}
+
+	public void setStartColor(boolean startColor) {
+		this.startColor = startColor;
 	}
 
 	public ArrayList<Node> getSuccSortedByIndex()

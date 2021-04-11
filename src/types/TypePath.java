@@ -4,6 +4,7 @@ public enum TypePath {
 
 	increasingIndex,
 	decreasingDegree,
-	smallestLast
+	smallestLast,
+	normal
 	
 }

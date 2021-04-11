@@ -1,26 +1,30 @@
 package classes;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
+
+import com.sun.jdi.Type;
+
+import types.TypeMode;
 import types.TypePath;
 
 public class Color {
 
+	/******** ALGORITHMS ************************************************************************************/
+	
 	/**
 	 * Called to found a path from a given hash map of nodes respecting increasing index rules
 	 * @param nodes_hm
 	 * @return the path represented by ArrayList
 	 */
 	
-	public ArrayList<Node> increasingIndex(HashMap<Integer, Node> nodes_hm)
+	public static ArrayList<Node> increasingIndex(Graphe g)
 	{
 		System.out.println("---- INCREASING INDEX ----");
-		
+		HashMap<Integer, Node> nodes_hm = g.getNoeuds_hm();
 		ArrayList<Node> nodes = new ArrayList<Node>();
 		Set<Integer> indexes = nodes_hm.keySet();
 		int lesserIndex = (int) Double.POSITIVE_INFINITY;
@@ -39,7 +43,7 @@ public class Color {
 	}
 	
 	
-	private ArrayList<Node> increasingIndexRec(Node n, ArrayList<Node> nodesTmp)
+	private static ArrayList<Node> increasingIndexRec(Node n, ArrayList<Node> nodesTmp)
 	{
 		if(n != null && !n.getSucc().isEmpty() && !n.isMark())
 		{
@@ -49,7 +53,6 @@ public class Color {
 			for(Node noeud : noeuds)
 			{
 				if(!noeud.isMark()) {
-					//System.out.println("Voisins de " + n.getId() +" : " + noeud.getId());
 					nodesTmp = increasingIndexRec(noeud, nodesTmp);
 				}
 			}
@@ -63,9 +66,10 @@ public class Color {
 	 * @return the path represented by ArrayList
 	 */
 	
-	public ArrayList<Node> decreasingDegree(HashMap<Integer, Node> nodes_hm)
+	public static ArrayList<Node> decreasingDegree(Graphe g)
 	{
 		System.out.println("---- DECREASING DEGREE ----");
+		HashMap<Integer, Node> nodes_hm = g.getNoeuds_hm();
 		ArrayList<Node> nodes = new ArrayList<Node>();
 		Node firstNode = null;
 		Set<Integer> indexes = nodes_hm.keySet();
@@ -92,7 +96,7 @@ public class Color {
 		return nodes;
 	}
 	
-	private ArrayList<Node> decreasingDegreeRec(Node n, ArrayList<Node> nodesTmp)
+	private static ArrayList<Node> decreasingDegreeRec(Node n, ArrayList<Node> nodesTmp)
 	{
 		if(!n.getSucc().isEmpty() && !n.isMark())
 		{
@@ -115,10 +119,11 @@ public class Color {
 	 * @return the path represented by ArrayList
 	 */
 	
-	public ArrayList<Node> smallest_last(HashMap<Integer, Node> nodes_hm)
+	public static ArrayList<Node> smallest_last(Graphe g)
 	{
 		System.out.println("---- SMALLEST LAST ----");
-		ArrayList<Node> init = transformToArray(nodes_hm);
+		HashMap<Integer, Node> nodes_hm = g.getNoeuds_hm();
+		ArrayList<Node> init = transformToArrayList(nodes_hm);
 		ArrayList<Node> result = new ArrayList<Node>();
 			
 		while(result.size() != init.size())
@@ -134,19 +139,18 @@ public class Color {
 	}
 	
 	/**
-	 * Transform a hash map of nodes into an ArrayList of nodes
-	 * @param nodes_hm
-	 * @return an ArrayList
+	 * Inverse an array
+	 * @param nodes
+	 * @return the inverse array
 	 */
 	
-	private ArrayList<Node> transformToArray(HashMap<Integer, Node> nodes_hm)
+	private static ArrayList<Node> inverse(ArrayList<Node> nodes)
 	{
+		
 		ArrayList<Node> result = new ArrayList<Node>();
 		
-		Set<Integer> indexes = nodes_hm.keySet();
-		
-		for(Integer index : indexes)
-			result.add(nodes_hm.get(index));
+		for(int i = nodes.size() - 1; i >= 0 ; i--)
+			result.add(nodes.get(i));
 		
 		return result;
 	}
@@ -157,7 +161,7 @@ public class Color {
 	 * @return node with the lesser degree
 	 */
 	
-	private Node getLesserNodeDegree(ArrayList<Node> nodes)
+	private static Node getLesserNodeDegree(ArrayList<Node> nodes)
 	{
 		Node lesserNodeDegree = null;
 		int lesserDegree = Integer.MAX_VALUE;
@@ -177,29 +181,26 @@ public class Color {
 	}
 	
 	/**
-	 * Inverse an array
-	 * @param nodes
-	 * @return the inverse array
-	 */
-	
-	private ArrayList<Node> inverse(ArrayList<Node> nodes)
-	{
-		
-		ArrayList<Node> result = new ArrayList<Node>();
-		
-		for(int i = nodes.size() - 1; i >= 0 ; i--)
-			result.add(nodes.get(i));
-		
-		return result;
-	}
-	
-	/**
 	 * Color nodes in a sequential way
 	 * @param nodes
 	 * @return the minimum number of colors used
 	 */
-	public int sequential(ArrayList<Node> nodes) {
+	public static int sequential(ArrayList<Node> nodes, TypeMode type) {
+	
+		switch (type) {
+		
+		case sudoku :
+			return sudokuSequential(nodes);
+		default :
+			return normalSequential(nodes);
+		}
+		
+	}
+	
+	private static int normalSequential(ArrayList<Node> nodes)
+	{
 		int omega = 0;
+		resetColors(nodes);
 		for (Node node : nodes) {
 			ArrayList<Integer> colors = new ArrayList<>();
 			// on récupère les couleurs des voisins
@@ -217,6 +218,46 @@ public class Color {
 			node.setColor(alpha);
 		}
 		resetColors(nodes);
+		return omega;
+	}
+	
+	
+	private static int sudokuSequential(ArrayList<Node> nodes)
+	{
+		resetColors(nodes);
+		int omega = 0;
+		
+		for(int i = 0; i < nodes.size(); i++)
+		{
+			int alpha = 1;
+			boolean isSafe = true;
+			LinkedList<Arc> currentSucc = nodes.get(i).getSucc();
+			
+			do {
+				isSafe = true;
+				for(Arc arc : currentSucc)
+				{
+					Node cible = arc.getTarget();
+					if(cible.getColor() == alpha) {
+						isSafe = false;
+						break;
+					}
+					
+				}	
+				
+				if(!isSafe)
+					alpha++;	
+				
+			}while(!isSafe);
+			
+			if(alpha > omega)
+				omega = alpha;
+		
+			if(!nodes.get(i).isStartColor()) {
+				nodes.get(i).setColor(alpha);
+			}
+		}
+		
 		return omega;
 	}
 
@@ -263,18 +304,6 @@ public class Color {
 	}
 	 */
 	
-	private void resetColors(ArrayList<Node> nodes)
-	{
-		for(Node node : nodes)
-			node.setColor(0);
-	}
-	
-	private void resetMarks(ArrayList<Node> nodes)
-	{
-		for(Node node : nodes)
-			node.setMark(false);
-	}
-	
 	/**
 	 * Return the best solution with a given initial solution
 	 * @param initTemp
@@ -284,14 +313,25 @@ public class Color {
 	 * @return the best solution found
 	 */
 	
-	public List<Node> simulatedAnnealing(HashMap<Integer, Node> nodes_hm, double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst, TypePath typePath)
+	public static ArrayList<Node> simulatedAnnealing(Graphe g, double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst, TypePath typePath, TypeMode typeMode)
+	{
+		switch(typeMode)
+		{
+		case sudoku :
+			return sudokuSA(g, initTemp, minLimitTemp, alpha, itermax, maxTconst, typePath, typeMode);
+		default :
+			return normalSA(g, initTemp, minLimitTemp, alpha, itermax, maxTconst, typePath, typeMode);
+		}
+	}
+	
+	private static ArrayList<Node> normalSA(Graphe g, double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst, TypePath typePath, TypeMode typeMode)
 	{
 		System.out.println("---- SIMULATED ANNEALING STARTED ----");
-		ArrayList<Node> currentSolution = getPath(nodes_hm, typePath);
+		ArrayList<Node> currentSolution = getPath(g, typePath);
 		double currentTemp = initTemp;
 		
 		ArrayList<Node> initSolution = currentSolution;
-		double initMinColors = sequential(initSolution);
+		double initMinColors = sequential(initSolution, typeMode);
 		
 		System.out.println("*** Init values ***");
 		System.out.println("Init solution : " + initSolution);
@@ -307,20 +347,21 @@ public class Color {
 			while(counter < maxTconst)
 			{
 				ArrayList<Node> newSolution = randomSwap(currentSolution);
-				if(sequential(newSolution) <= sequential(currentSolution))
+				if(sequential(newSolution, typeMode) <= sequential(currentSolution, typeMode))
 				{
 					currentSolution = newSolution;
-					if(sequential(currentSolution) < initMinColors)
+					if(sequential(currentSolution, typeMode) < initMinColors)
 					{
 						initSolution = currentSolution;
-						initMinColors = sequential(currentSolution);
+						initMinColors = sequential(currentSolution, typeMode);
 						System.out.println("\t-> Better solution found : " + initSolution + "\n\twith " + initMinColors + " min colors\n");
 					}
 				}
 				else
 				{
 					double p = (Math.random());
-					double n =Math.exp(-( sequential(newSolution) - sequential(currentSolution) )/currentTemp);
+					double n =Math.exp(-( (double)sequential(newSolution, typeMode) - (double)sequential(currentSolution, typeMode) )/currentTemp);
+					System.out.println(n);
 					if(p < n)
 						currentSolution = newSolution;
 				}
@@ -340,16 +381,59 @@ public class Color {
 		return initSolution;
 	}
 	
+	private static ArrayList<Node> sudokuSA(Graphe g, double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst, TypePath typePath, TypeMode typeMode)
+	{
+		ArrayList<Node> currentSolution = getPath(g, typePath);
+		double currentTemp = initTemp;
+		
+		ArrayList<Node> initSolution = currentSolution;
+		double initMinColors = sequential(initSolution, typeMode);
+		
+		int iter = 1;
+		while( currentTemp > minLimitTemp && iter < itermax )
+		{
+			int counter = 1;
+			while(counter < maxTconst)
+			{
+				ArrayList<Node> newSolution = randomSwap(currentSolution);
+				if(sequential(newSolution, typeMode) <= sequential(currentSolution, typeMode))
+				{
+					currentSolution = newSolution;
+					if(sequential(currentSolution, typeMode) < initMinColors)
+					{
+						initSolution = currentSolution;
+						initMinColors = sequential(currentSolution, typeMode);
+					}
+				}
+				else
+				{
+					double p = (Math.random());
+					double n =Math.exp(-( (double)sequential(newSolution, typeMode) - (double)sequential(currentSolution, typeMode) )/currentTemp);
+					//System.out.println("new sequential : " + sequential(newSolution, typeMode));
+					//System.out.println("current sequential : " + sequential(currentSolution, typeMode));
+					//System.out.println(n);
+					if(p < n)
+						currentSolution = newSolution;
+				}
+				
+				counter++;
+			}
+			
+			currentTemp = alpha * currentTemp;
+		}
+		
+		return initSolution;
+	}
+	
+	
+	
 	/**
 	 * Called to transform a given solution by exchanging two node chosen randomly
 	 * @return the new solution
 	 */
 	
-	private ArrayList<Node> randomSwap(ArrayList<Node> solution)
+	private static ArrayList<Node> randomSwap(ArrayList<Node> solution)
 	{
-		//System.out.println("*** Transform solution ***");
-		
-		//System.out.println("old solution : " + solution);
 		
 		ArrayList<Node> newSolution = new ArrayList<Node>();
 		
@@ -373,16 +457,20 @@ public class Color {
 		newSolution.set(id_firstPosition, newSolution.get(id_secondPosition));
 		newSolution.set(id_secondPosition, tmpNode);
 		
-		//System.out.println("new solution : " + newSolution);
-		
 		return newSolution;
 	}
 	
-	public ArrayList<ArrayList<Node>> backtracking(HashMap<Integer, Node> nodes_hm)
+	/**
+	 * Return best paths with their coloration with the smaller number of colors 
+	 * @param nodes_hm
+	 * @return
+	 */
+	
+	public static ArrayList<ArrayList<Node>> backtracking(Graphe g)
 	{
 		System.out.println("---- BACKTRACKING STARTED ----");
-		
-		ArrayList<Node> initPath = transformToArray(nodes_hm);
+		HashMap<Integer, Node> nodes_hm = g.getNoeuds_hm();
+		ArrayList<Node> initPath = transformToArrayList(nodes_hm);
 		ArrayList<ArrayList<Node>> allPaths = getPermutations(initPath);
 
 		int nbAllPaths = allPaths.size();
@@ -392,7 +480,6 @@ public class Color {
 		{
 			nbColoriablePaths = displayColoration(allPaths, nbAllPaths, nbColoriablePaths, m);
 			
-			//If paths are found with m colors, then we finish backtracking
 			if(nbColoriablePaths > 0)
 				break;
 			nbColoriablePaths = 0;
@@ -401,16 +488,24 @@ public class Color {
 		System.out.println("---- BACKTRACKING FINISHED ----");
 		return allPaths;
 	}
-
-
-	private int displayColoration(ArrayList<ArrayList<Node>> allPaths, int nbAllPaths, int nbColoriablePaths, int m) {
+	
+	/**
+	 * Show on the console the betters paths with their colorations
+	 * @param allPaths
+	 * @param nbAllPaths
+	 * @param nbColoriablePaths
+	 * @param m
+	 * @return the number of path coloriable
+	 */
+	
+	private static int displayColoration(ArrayList<ArrayList<Node>> allPaths, int nbAllPaths, int nbColoriablePaths, int m) {
 		System.out.println("\n******** " + m + " colors at most **********************************************************\n");
 		for(ArrayList<Node> path : allPaths)
 		{
 			boolean isColoriable = backtrackColor(path, m);
 			
 			if(isColoriable) {
-				System.out.println("Path: " + path + " -> " + sequential(path) + "\n");
+				System.out.println("Path: " + path + " -> " + sequential(path, TypeMode.normal) + "\n");
 				nbColoriablePaths++;
 			}
 		}
@@ -419,14 +514,21 @@ public class Color {
 		return nbColoriablePaths;
 	}
 	
-	private boolean backtrackColor(ArrayList<Node> nodes, int n)
+	/**
+	 * Check if the path nodes can be colored with at most n colors
+	 * @param nodes
+	 * @param n
+	 * @return true if it's possible, false otherwise
+	 */
+	
+	private static boolean backtrackColor(ArrayList<Node> nodes, int n)
 	{
-		boolean isColoriable = backtrackColorRec(nodes, 0, n, "");
 		resetColors(nodes);
+		boolean isColoriable = backtrackColorRec(nodes, 0, n, "");
 		return isColoriable;
 	}
 	
-	private boolean backtrackColorRec(ArrayList<Node> nodes, int currentPosition, int n, String str)
+	private static boolean backtrackColorRec(ArrayList<Node> nodes, int currentPosition, int n, String str)
 	{
 		Node currentNode = null;
 		
@@ -457,13 +559,19 @@ public class Color {
 		return false;
 	}
 	
-	private  ArrayList<ArrayList<Node>> getPermutations(ArrayList<Node> nodes){  
+	/**
+	 * Get all possibles permutations from an arrayList
+	 * @param nodes
+	 * @return all permutations
+	 */
+	
+	private  static ArrayList<ArrayList<Node>> getPermutations(ArrayList<Node> nodes){  
 	 	ArrayList<ArrayList<Node>> result = new ArrayList<ArrayList<Node>>();
         getPermutationsRec(nodes, 0, result);  
         return result;    
 	 }  
 	  
-	 private void getPermutationsRec(ArrayList<Node> nodes, int pos, ArrayList<ArrayList<Node>> result){  
+	 private static void getPermutationsRec(ArrayList<Node> nodes, int pos, ArrayList<ArrayList<Node>> result){  
 		 
         if(pos >= nodes.size() - 1){   
         	ArrayList<Node> newSolution = new ArrayList<Node>();
@@ -490,66 +598,6 @@ public class Color {
             nodes.set(i, t);
         }  
 	 }  
-	
-	 /*
-	 public void permutation(HashMap<Integer, Node> nodes_hm, ArrayList<Node> permutation,int color ) {
-			ArrayList<Node> uniqueList=transformToArray(nodes_hm);
-		    if (permutation == null) {
-		        assert 0 < uniqueList.size() : "Liste en entrer vide";
-		        permutation = new ArrayList<>(uniqueList.size());
-		        System.out.println("---- BACKTRACKING STARTED ----");
-		    }
-		    for (Node i : uniqueList) {
-		        if (permutation.contains(i)) {
-		            continue;
-		        }
-		        permutation.add(i);
-		        if (permutation.size() == uniqueList.size()) {
-		        	if(backtrackColorRec(permutation, 0, color, "")) {
-		        		System.out.println(Arrays.toString(permutation.toArray())+"->"+color+"\n\n");
-		        	}
-		        }
-		        if (permutation.size() < uniqueList.size()) {
-		        	 permutation(nodes_hm, permutation,color);
-		        }
-		        permutation.remove(permutation.size() - 1);
-		    }
-		    if(permutation.size()==0) {
-		    	System.out.println(factorial(nodes_hm.size())+" path in total ");
-		    	System.out.println("---- BACKTRACKING FINISH ----");
-		    }
-		}
-		*/
-	
-	public int factorial(int n) {
-	    if (n>1)
-	        return n*factorial(n-1);
-	    else
-	        return 1;
-	}
-	
-	
-	/**
-	 * Choose the right path to return according to typePath
-	 * @param typePath
-	 * @param nodes_hm
-	 * @return
-	 */
-	
-	private ArrayList<Node> getPath(HashMap<Integer, Node> nodes_hm, TypePath typePath)
-	{
-		switch (typePath) {
-		
-			case increasingIndex :
-				return increasingIndex(nodes_hm);
-			case decreasingDegree :
-				return decreasingDegree(nodes_hm);
-			default :
-				return smallest_last(nodes_hm);
-		
-		}
-		
-	}
 	
 	
 	/**
@@ -607,7 +655,7 @@ public class Color {
 	 * @return omega:int
 	 */
 	public int taboo(ArrayList<Node> nodes, int iter) {
-		int k = sequential(nodes);
+		int k = sequential(nodes, TypeMode.normal);
 		int omega = k;
 		while (k > 0) {
 			k -= 1;
@@ -727,5 +775,72 @@ public class Color {
 		return random;
 	}
 	
+	/******** GENERAL FUNCTIONS ************************************************************************************/
+	
+	/**
+	 * Reset all colors of the graph
+	 * @param nodes
+	 */
+	
+	public static void resetColors(ArrayList<Node> nodes)
+	{
+		for(Node node : nodes)
+			if(!node.isStartColor())
+				node.setColor(0);
+	}
+	
+	/**
+	 * Reset all marks of the graph
+	 * @param nodes
+	 */
+	
+	private static void resetMarks(ArrayList<Node> nodes)
+	{
+		for(Node node : nodes)
+			node.setMark(false);
+	}
+	
+	
+	
+	/**
+	 * Transform a hash map of nodes into an ArrayList of nodes
+	 * @param nodes_hm
+	 * @return an ArrayList
+	 */
+	
+	public static ArrayList<Node> transformToArrayList(HashMap<Integer, Node> nodes_hm)
+	{
+		ArrayList<Node> result = new ArrayList<Node>();
+		
+		Set<Integer> indexes = nodes_hm.keySet();
+		
+		for(Integer index : indexes)
+			result.add(nodes_hm.get(index));
+		
+		return result;
+	}
+	
+	/**
+	 * Choose the right path to return according to typePath
+	 * @param typePath
+	 * @param nodes_hm
+	 * @return
+	 */
+	
+	private static ArrayList<Node> getPath(Graphe g, TypePath typePath)
+	{
+		switch (typePath) {
+		
+			case increasingIndex :
+				return increasingIndex(g);
+			case decreasingDegree :
+				return decreasingDegree(g);
+			case normal : 
+				return transformToArrayList(g.getNoeuds_hm());
+			default :
+				return smallest_last(g);
+		
+		}
+	}
 	
 }

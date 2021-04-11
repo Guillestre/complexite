@@ -1,7 +1,9 @@
 package classes;
 
+import java.util.ArrayList;
 import java.util.Random;
 
+import types.TypeMode;
 import types.TypePath;
 
 public class Main {
@@ -9,23 +11,25 @@ public class Main {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		//Graphe g1 = new Graphe("Graphe.csv");
+		Graphe g1 = new Graphe("Graphe.csv");
 		Graphe g2 = new RandomGraphe(100, 0.9);
-		Color c = new Color();
 	
-		double initTemp = 500;
-		double minLimitTemp = 10;
-		double alpha = 0.99;
+		//SA parameters value
+		double initTemp = 10000;
+		double minLimitTemp = 0.3;
+		double alpha = 0.999;
 		double itermax = 1000; 
-		double maxTconst = 2;
+		double maxTconst = 10;
 	
-		//c.simulatedAnnealing(g2.getNoeuds_hm(), initTemp, minLimitTemp, alpha, itermax, maxTconst, TypePath.increasingIndex);
-	
-		//c.backtracking(g1.getNoeuds_hm());
-		System.out.println(g2);
-		int omega = c.taboo(c.increasingIndex(g2.getNoeuds_hm()), 10);
-		System.out.println("omega : "+omega);
+		/** TEST AREA ***/
+		Sudoku sudoku = new Sudoku();
 		
+		
+		//System.out.println("Chromatic number is : " + Color.sequential(path, TypeMode.sudoku));
+		//Color.backtracking(g1);
+		//Color.simulatedAnnealing(g2, initTemp, minLimitTemp, alpha, itermax, maxTconst, TypePath.normal, TypeMode.normal);
+		//Color.backtracking(g1);
+		sudoku.resolveSA(initTemp, minLimitTemp, alpha, itermax, maxTconst);
 	}
 
 }

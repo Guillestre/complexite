@@ -17,7 +17,7 @@ public class Graphe {
 	public Graphe() {}
 	
 	/**
-	 * Création d'un graphe à partir d'une matrice
+	 * Crï¿½ation d'un graphe ï¿½ partir d'une matrice
 	 * @param mat
 	 */
 	
@@ -34,7 +34,7 @@ public class Graphe {
 	}
 	
 	/**
-	 * Création d'un graphe avec des noeuds sans arcs
+	 * Crï¿½ation d'un graphe avec des noeuds sans arcs
 	 * @param k
 	 */
 	
@@ -48,7 +48,7 @@ public class Graphe {
 	}
 	
 	/**
-	 * Création d'un graphe à partir d'un fichier CSV
+	 * Crï¿½ation d'un graphe ï¿½ partir d'un fichier CSV
 	 * @param file
 	 */
 	
@@ -94,7 +94,7 @@ public class Graphe {
 	
 	public void addArc(int x, int y)
 	{
-		//Si les deux id sont distincts, on crée l'arc
+		//Si les deux id sont distincts, on crï¿½e l'arc
 		if( x != y ) {
 			
 			addNoeud(x);
@@ -122,10 +122,10 @@ public class Graphe {
 	}
 	
 	/**
-	 * Vérifie si l'arc (i, j) existe
+	 * Vï¿½rifie si l'arc (i, j) existe
 	 * @param i
 	 * @param j
-	 * @return un booléen
+	 * @return un boolï¿½en
 	 */
 	
 	public boolean ArcExist(int i, int j)
@@ -293,7 +293,7 @@ public class Graphe {
 	
 	
 	/**
-	 * Export d’un graphe sous format CSV selon la liste de ses arcs
+	 * Export dï¿½un graphe sous format CSV selon la liste de ses arcs
 	 * Format Source : Target 
 	 */
 	
@@ -349,7 +349,7 @@ public class Graphe {
 	
 
 	/**
-	 * Récupère un noeud du graphe identifié par son id
+	 * Rï¿½cupï¿½re un noeud du graphe identifiï¿½ par son id
  	 * @param n
 	 * @return un noeud
 	 */
@@ -360,7 +360,7 @@ public class Graphe {
 	}
 	
 	/**
-	 * Retourne la liste de noeuds identifiés par un id
+	 * Retourne la liste de noeuds identifiï¿½s par un id
 	 * @return un hash map
 	 */
 
@@ -369,7 +369,7 @@ public class Graphe {
 	}
 
 	/**
-	 * Met à jour le graphe
+	 * Met ï¿½ jour le graphe
 	 * @param noeuds_hm
 	 */
 	
@@ -377,6 +377,12 @@ public class Graphe {
 		this.noeuds_hm = noeuds_hm;
 	}
 	
-	
+	/**
+	 * retourne la liste des noeuds d'un graphe
+	 * @return ArrayList<Node> noeuds
+	 */
+	public LinkedList<Node> getNoeuds() {
+		return this.noeuds;
+	}
 
 }

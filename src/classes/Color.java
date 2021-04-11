@@ -605,7 +605,7 @@ public class Color {
 	* @param nodes:ArrayList<Node>
 	* @return omega:int
 	 */
-	public int DSatur(ArrayList<Node> nodes) {
+	public static int DSatur(ArrayList<Node> nodes) {
 		int omega = 0;
 		nodes.get(0).setColor(1);
 		nodes.remove(0);
@@ -631,7 +631,7 @@ public class Color {
 	* @param nodes:ArrayList<Node>
 	* @return result:int
 	 */
-	private int DSat(ArrayList<Node> nodes) {
+	private static int DSat(ArrayList<Node> nodes) {
 		Node result = null;
 		int min = (int) Double.POSITIVE_INFINITY;
 		for (Node node : nodes) {
@@ -654,7 +654,7 @@ public class Color {
 	 * @param nodes:ArrayList
 	 * @return omega:int
 	 */
-	public int taboo(ArrayList<Node> nodes, int iter) {
+	public static int taboo(ArrayList<Node> nodes, int iter) {
 		int k = sequential(nodes, TypeMode.normal);
 		int omega = k;
 		while (k > 0) {
@@ -674,7 +674,7 @@ public class Color {
 	 * @param iter:int
 	 * @return boolean
 	 */
-	private boolean isKColoriable(ArrayList<Node> nodes, int k, int iter) {
+	private static boolean isKColoriable(ArrayList<Node> nodes, int k, int iter) {
 		// colors initialisation
 		int[] c = new int[k];
 		for (int i = 0; i < c.length; i++) {
@@ -739,7 +739,7 @@ public class Color {
 	 * @param nodes:ArrayList
 	 * @return result:int
 	 */
-	private int f(ArrayList < Node > nodes) {
+	private static int f(ArrayList < Node > nodes) {
 		int result = 0;
 		for (Node node : nodes) {
 			for (Arc arc : node.getSucc()) {
@@ -754,7 +754,7 @@ public class Color {
 	 * @param arc:Arc
 	 * @return int
 	 */
-	private int g (Arc arc){
+	private static int g (Arc arc){
 		if (arc.getSource().getColor() == arc.getTarget().getColor())
 			return 1;
 		else
@@ -767,7 +767,7 @@ public class Color {
 	 * @param sup:int
 	 * @return random:int
 	 */
-	private int randomGenerator ( int inf, int sup){
+	public static int randomGenerator ( int inf, int sup){
 		if (inf == sup)
 			return inf;
 		Random r = new Random();

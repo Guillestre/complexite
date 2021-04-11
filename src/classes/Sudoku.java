@@ -1,7 +1,6 @@
 package classes;
 
 import java.util.ArrayList;
-
 import types.TypeMode;
 import types.TypePath;
 

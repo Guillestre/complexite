@@ -184,41 +184,36 @@ public class Color {
 	 */
 	public static int sequential(ArrayList<Node> nodes) {
 	
-		resetColors(nodes);
 		int omega = 0;
-		
-		for(int i = 0; i < nodes.size(); i++)
-		{
-			int alpha = 1;
-			boolean isSafe = true;
-			LinkedList<Arc> currentSucc = nodes.get(i).getSucc();
+		resetColors(nodes);
+		for (Node node : nodes) {
 			
-			do {
-				isSafe = true;
-				for(Arc arc : currentSucc)
-				{
-					Node cible = arc.getTarget();
-					if(cible.getColor() == alpha) {
-						isSafe = false;
-						break;
-					}
-					
-				}	
+			if(node.getColor() == 0) {
+				ArrayList<Integer> colors = new ArrayList<>();
+				// on récupère les couleurs des voisins
+				for (Arc arc : node.getSucc()) {
+					Node target = arc.getTarget();
+					if (!colors.contains(target.getColor()) && target.getColor() != 0)
+						colors.add(target.getColor());
+				}
+				int alpha = 1;
+				while (colors.contains(alpha)) {
+					alpha++;
+				}
+				if (alpha > omega)
+					omega = alpha;
 				
-				if(!isSafe)
-					alpha++;	
 				
-			}while(!isSafe);
-			
-			if(alpha > omega)
-				omega = alpha;
-		
-			if(!nodes.get(i).isStartColor()) {
-				nodes.get(i).setColor(alpha);
+				node.setColor(alpha);
 			}
-			
+			else
+			{
+				int color = node.getColor();
+				if(color > omega)
+					omega = color;
+			}
 		}
-		
+	
 		return omega;
 		
 	}
@@ -253,7 +248,7 @@ public class Color {
 		
 		int iter = 1;
 		
-		while( currentTemp > minLimitTemp && iter < itermax )
+		while( currentTemp > minLimitTemp && iter < itermax)
 		{
 			int counter = 1;
 			while(counter < maxTconst)
@@ -673,6 +668,17 @@ public class Color {
 		for(Node node : nodes)
 			if(!node.isStartColor())
 				node.setColor(0);
+	}
+	
+	/**
+	 * Reset all colors of the graph
+	 * @param nodes
+	 */
+	
+	public static void resetAllColors(ArrayList<Node> nodes)
+	{
+		for(Node node : nodes)
+			node.setColor(0);
 	}
 	
 	/**

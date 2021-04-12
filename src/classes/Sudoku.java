@@ -17,6 +17,17 @@ public class Sudoku extends Graphe {
 			this.addNoeud(i);
 		
 		setFullMatrix();
+		generateRandomColors();
+	}
+	
+	public Sudoku(int m[][])
+	{
+		
+		for(int i = 1; i < 82; i++)
+			this.addNoeud(i);
+		
+		setFullMatrix();
+		setSudoku(m);
 	}
 	
 	private void setFullMatrix()
@@ -213,8 +224,8 @@ public class Sudoku extends Graphe {
 	
 	private void addRandomColor(int min_row, int max_row, int min_col, int max_col)
 	{
-		int Min = 2;
-		int Max = 3;
+		int Min = 1;
+		int Max = 4;
 		int nbColorToAdd = Min + (int)(Math.random() * ((Max - Min) + 1));
 		int nbColorAdded = 0;
 		while(nbColorAdded != nbColorToAdd) {
@@ -225,9 +236,9 @@ public class Sudoku extends Graphe {
 				{
 					Min = 0;
 					Max = 1;
-					int color = Min + (int)(Math.random() * ((Max - Min) + 1));
+					int addColor = Min + (int)(Math.random() * ((Max - Min) + 1));
 					
-					if(color != 0)
+					if(addColor != 0)
 					{
 						if(m_colors[i][j] == 0 && nbColorAdded != nbColorToAdd)
 						{
@@ -243,11 +254,18 @@ public class Sudoku extends Graphe {
 							while (colors.contains(alpha)) {
 								alpha++;
 							}
+							
+							
+							int color = alpha + (int)(Math.random() * ((9 - alpha) + 1));
+							
+							while(colors.contains(color))
+								color = alpha + (int)(Math.random() * ((9 - alpha) + 1));
+							
 							node.setStartColor(true);
-							node.setColor(alpha);
+							node.setColor(color);
 							
 							nbColorAdded++;
-							m_colors[i][j] = alpha;
+							m_colors[i][j] = color;
 						}
 							
 					}
@@ -266,19 +284,21 @@ public class Sudoku extends Graphe {
 		
 		simulatedAnnealingResolution(initTemp, minLimitTemp, alpha, itermax, maxTconst);
 		
-		updateSudoku();
-	
-		System.out.println("--- AFTER ---");
-		displaySudoku();
-		
 	}
 	
 	private void simulatedAnnealingResolution(double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst)
 	{
 		System.out.println("\nSolving....");
 		int m = 0;
-		
-		while(m != 9)
+		double startTime = System.currentTimeMillis();
+		boolean noFound = false;
+		while(m != 9) {
+			
+			if(System.currentTimeMillis() - startTime > 60000) {
+				noFound = true;
+				break;
+			}
+			
 			m = Color.simulatedAnnealing(
 					this, 
 					initTemp, 
@@ -287,9 +307,20 @@ public class Sudoku extends Graphe {
 					itermax, 
 					maxTconst, 
 					TypePath.normal, 
-					TypeDisplay.hidden);
+					TypeDisplay.hidden);	
+			
+			
+			
+		}
 		
-		System.out.println("Solving with simulated annealing finished");
+		if(!noFound) {
+			updateSudoku();
+			System.out.println("--- AFTER ---");
+			displaySudoku();
+			System.out.println("Solving with simulated annealing finished");
+		}
+		else 
+			System.out.println("No solutions found, resolution took too much time");
 	}
 	
 	public void displayIdTable()
@@ -366,7 +397,7 @@ public class Sudoku extends Graphe {
 			for(int j = 0; j < 9; j++)
 			{
 				Node node = this.getNoeud(m_ids[i][j]);
-				
+
 				m_colors[i][j] = m[i][j];
 				node.setColor(m[i][j]);
 				
@@ -374,11 +405,6 @@ public class Sudoku extends Graphe {
 					node.setStartColor(true);
 			}
 		}
-	}
-	
-	public void setRandomSudoku()
-	{
-		generateRandomColors();
 	}
 	
 }

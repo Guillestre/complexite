@@ -224,7 +224,7 @@ public class Sudoku extends Graphe {
 	
 	private void addRandomColor(int min_row, int max_row, int min_col, int max_col)
 	{
-		int Min = 1;
+		int Min = 2;
 		int Max = 4;
 		int nbColorToAdd = Min + (int)(Math.random() * ((Max - Min) + 1));
 		int nbColorAdded = 0;
@@ -390,7 +390,7 @@ public class Sudoku extends Graphe {
 		System.out.println(str);
 	}
 	
-	public void setSudoku(int[][] m)
+	private void setSudoku(int[][] m)
 	{
 		for(int i = 0; i < 9; i++)
 		{

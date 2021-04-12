@@ -184,38 +184,49 @@ public class Color {
 	 */
 	public static int sequential(ArrayList<Node> nodes) {
 	
-		int omega = 0;
+		int chromaticNumber = 0;
+		
+		//Reset all colors
 		resetColors(nodes);
+		
+		//Fetch each node
 		for (Node node : nodes) {
 			
+			//If node isn't colored
 			if(node.getColor() == 0) {
 				ArrayList<Integer> colors = new ArrayList<>();
-				// on récupère les couleurs des voisins
+				
+				//Fetch adjacent nodes
 				for (Arc arc : node.getSucc()) {
 					Node target = arc.getTarget();
+					
+					//Add colored adjacent nodes in colors
 					if (!colors.contains(target.getColor()) && target.getColor() != 0)
 						colors.add(target.getColor());
 				}
 				int alpha = 1;
-				while (colors.contains(alpha)) {
+				
+				//While we encounter a color already token by an adjacent node, 
+				//then we increment alpha
+				while (colors.contains(alpha)) 
 					alpha++;
-				}
-				if (alpha > omega)
-					omega = alpha;
 				
+				if (alpha > chromaticNumber)
+					chromaticNumber = alpha;
 				
+		
 				node.setColor(alpha);
 			}
 			else
 			{
+				//If node is already colored
 				int color = node.getColor();
-				if(color > omega)
-					omega = color;
+				if(color > chromaticNumber)
+					chromaticNumber = color;
 			}
 		}
 	
-		return omega;
-		
+		return chromaticNumber;	
 	}
 
 	/**
@@ -232,53 +243,68 @@ public class Color {
 		if(typeDisplay == TypeDisplay.normal)
 			System.out.println("---- SIMULATED ANNEALING STARTED ----");
 		
+		//Initialization
 		ArrayList<Node> currentSolution = getPath(g, typePath);
 		double currentTemp = initTemp;
 		
-		ArrayList<Node> initSolution = currentSolution;
-		int initMinColors = sequential(initSolution);
+		ArrayList<Node> finalSolution = currentSolution;
+		int finalChromaticNumber = sequential(finalSolution);
+		
+		int iter = 1;
 		
 		if(typeDisplay == TypeDisplay.normal) {
 			System.out.println("*** Init values ***");
-			System.out.println("Init solution : " + initSolution);
-			System.out.println("Init min colors : " + initMinColors);
+			System.out.println("Init solution : " + finalSolution);
+			System.out.println("Init min colors : " + finalChromaticNumber);
 			System.out.println("Init temperature : " + initTemp);
 			System.out.println("*******************");
 		}
-		
-		int iter = 1;
 		
 		while( currentTemp > minLimitTemp && iter < itermax)
 		{
 			int counter = 1;
 			while(counter < maxTconst)
 			{
+				//Fetch new random solution
 				ArrayList<Node> newSolution = randomSwap(currentSolution);
+				
+				//If the new solution is better than currentSolution
 				if(sequential(newSolution) <= sequential(currentSolution))
 				{
+					//We assign the new solution to currentSolution
 					currentSolution = newSolution;
-					if(sequential(currentSolution) < initMinColors)
+					
+					//If chromatic number of currentSolution is better than the current one
+					if(sequential(currentSolution) < finalChromaticNumber)
 					{
-						initSolution = currentSolution;
-						initMinColors = sequential(currentSolution);
+						//Then we update finalSolution and finalChromaticNumber
+						finalSolution = currentSolution;
+						finalChromaticNumber = sequential(currentSolution);
+						
+						//We display the better solution found
 						if(typeDisplay == TypeDisplay.normal) 
-							System.out.println("\t-> Better solution found : " + initSolution + "\n\twith " + initMinColors + " min colors\n");
+							System.out.println("\t-> Better solution found : " + finalSolution + "\n\twith " + finalChromaticNumber + " min colors\n");
 						
 					}
 				}
 				else
 				{
+					//Retrieve the probability to get the wrong solution  
 					double p = (Math.random());
-					double n =Math.exp(-( (double)sequential(newSolution) - (double)sequential(currentSolution) )/currentTemp);
+					double diff = (double)sequential(newSolution) - (double)sequential(currentSolution);
+					double threshold = Math.exp(-( diff )/currentTemp);
 					
-					if(p < n)
+					if(p < threshold)
 						currentSolution = newSolution;
 				}
 				
 				counter++;
 			}
 			
+			//Shrink the temperature
 			currentTemp = alpha * currentTemp;
+			
+			//Display current temperature
 			if(typeDisplay == TypeDisplay.normal) 
 				System.out.println("\tTemperature is now at " + currentTemp + " degrees\n");
 			
@@ -286,14 +312,15 @@ public class Color {
 		}
 		
 		if(typeDisplay == TypeDisplay.normal) 
-		System.out.println("\tBetter solution found during the program : " + initSolution + "\n\twith " + initMinColors + " min colors");
+		System.out.println("\tBetter solution found during the program : " + finalSolution + "\n\twith " + finalChromaticNumber + " min colors");
 		
 		
 		if(typeDisplay == TypeDisplay.normal) 
 			System.out.println("\n---- SIMULATED ANNEALING FINISHED ----");
 		
-		sequential(initSolution);
-		return initMinColors;
+		//Color the better path found
+		sequential(finalSolution);
+		return finalChromaticNumber;
 	}
 	
 	
@@ -340,34 +367,28 @@ public class Color {
 	public static int backtracking(Graphe g)
 	{
 		System.out.println("---- BACKTRACKING STARTED ----");
+		
+		//Initialization
 		HashMap<Integer, Node> nodes_hm = g.getNoeuds_hm();
 		ArrayList<Node> initPath = transformToArrayList(nodes_hm);
-		ArrayList<ArrayList<Node>> allPaths = getPermutations(initPath);
-
+		ArrayList<ArrayList<Node>> allPaths = getAllPermutations(initPath);
 		int nbAllPaths = allPaths.size();
 		int nbColoriablePaths = 0;
+		int chromaticNumber = 1;
 		
 		//Display best colorations with the lower chromatic number at most
 		for(int m = 1; m <= initPath.size(); m++)
 		{
 			nbColoriablePaths = displayColoration(allPaths, nbAllPaths, nbColoriablePaths, m);
 			
-			if(nbColoriablePaths > 0)
+			if(nbColoriablePaths > 0) {
+				chromaticNumber = m;
 				break;
-			nbColoriablePaths = 0;
-		}
-		
-		//Getting chromatic number
-		int omega = Integer.MAX_VALUE;
-		for(ArrayList<Node> path : allPaths)
-		{
-			int m = sequential(path);
-			if( m < omega )
-				omega = m;
+			}
 		}
 		
 		System.out.println("---- BACKTRACKING FINISHED ----");
-		return omega;
+		return chromaticNumber;
 	}
 	
 	/**
@@ -410,9 +431,11 @@ public class Color {
 	}
 	
 	private static boolean backtrackColorRec(ArrayList<Node> nodes, int currentPosition, int n, String str)
-	{
+	{ 
 		Node currentNode = null;
 		
+		//If we've gone through each node of the path, we display the coloration found.
+		//Otherwise, we go to the next node
 		if(currentPosition == nodes.size()) {
 			System.out.print("Coloration [" + str + "] \nwith the following ");
 			return true;
@@ -420,23 +443,26 @@ public class Color {
 		else
 			currentNode = nodes.get(currentPosition);
 		
+		//We test each color until the color n
 		for(int c = 1; c <= n; c++)
 		{
 			currentNode.setColor(c);
 			LinkedList<Arc> succ = currentNode.getSucc();
 			boolean isSafe = true;
+			//Fetch adjacent nodes
 			for(Arc arc : succ)
 			{
 				Node neighbour = arc.getTarget();
 				if(neighbour.getColor() == c)
 					isSafe = false;
 			}
-			
+			//If c is coloriable, then we continue to go through the path
 			if(isSafe)
-				return backtrackColorRec(nodes, currentPosition + 1, n, str + " " + currentNode.getColor() + " ");
-			
+				return backtrackColorRec(nodes, currentPosition + 1, n, str + " " + currentNode.getColor() + " ");	
 		}
+		//If currentNode has been processed, then we reset his color
 		currentNode.setColor(0);
+		
 		return false;
 	}
 	
@@ -446,7 +472,7 @@ public class Color {
 	 * @return all permutations
 	 */
 	
-	private  static ArrayList<ArrayList<Node>> getPermutations(ArrayList<Node> nodes){  
+	private  static ArrayList<ArrayList<Node>> getAllPermutations(ArrayList<Node> nodes){  
 	 	ArrayList<ArrayList<Node>> result = new ArrayList<ArrayList<Node>>();
         getPermutationsRec(nodes, 0, result);  
         return result;    
@@ -668,17 +694,6 @@ public class Color {
 		for(Node node : nodes)
 			if(!node.isStartColor())
 				node.setColor(0);
-	}
-	
-	/**
-	 * Reset all colors of the graph
-	 * @param nodes
-	 */
-	
-	public static void resetAllColors(ArrayList<Node> nodes)
-	{
-		for(Node node : nodes)
-			node.setColor(0);
 	}
 	
 	/**

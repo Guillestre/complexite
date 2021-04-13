@@ -519,12 +519,15 @@ public class Color {
 		while (!nodes.isEmpty()) {
 			int i = DSat(nodes);
 			Node node = nodes.get(i);
-			int alpha = 1;
+			ArrayList<Integer> colors = new ArrayList<Integer>();
 			for (Arc arc : node.getSucc()) {
 				Node target = arc.getTarget();
-				if (target.getColor() == alpha)
-					alpha++;
+				if (!colors.contains(target.getColor()) && target.getColor() != 0)
+					colors.add(target.getColor());
 			}
+			int alpha = 1;
+			while (colors.contains(alpha))
+				alpha++;
 			node.setColor(alpha);
 			nodes.remove(node);
 			if (alpha > omega)

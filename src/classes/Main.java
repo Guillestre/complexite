@@ -9,7 +9,7 @@ public class Main {
 		// TODO Auto-generated method stub
 		
 		//Graphe g1 = new Graphe("Graphe.csv");
-		//Graphe g2 = new RandomGraphe(5, 0.7);
+		Graphe g2 = new RandomGraphe(5, 0.7);
 		
 		//SA parameters value
 		double initTemp = 150;

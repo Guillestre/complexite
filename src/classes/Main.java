@@ -8,8 +8,8 @@ public class Main {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		//Graphe g1 = new Graphe("Graphe.csv");
-		Graphe g2 = new RandomGraphe(5, 0.7);
+		Graphe g1 = new Graphe("Graphe.csv");
+		Graphe g2 = new RandomGraphe(10, 0.5);
 		
 		//SA parameters value
 		double initTemp = 150;
@@ -65,7 +65,27 @@ public class Main {
 		//Sudoku sudoku = new Sudoku(s2);
 		//sudoku.resolveSA(initTemp, minLimitTemp, alpha, itermax, maxTconst);
 		
-		System.out.println(Color.backtracking(g2));
+		//System.out.println(Color.backtracking(g1));
+		System.out.println(g2.toString());
+		long startTime =  System.nanoTime();
+		System.out.println(Color.sequential(Color.decreasingDegree(g2)));
+		long endTime = System.nanoTime();
+		long elapsedTime = endTime - startTime;
+		System.out.println("Elapsed time: " + elapsedTime / 1000000 + " milliseconds");
+		
+		startTime =  System.nanoTime();
+		System.out.println(Color.sequential(Color.increasingIndex(g2)));
+		endTime = System.nanoTime();
+		elapsedTime = endTime - startTime;
+		System.out.println("Elapsed time: " + elapsedTime / 1000000 + " milliseconds");
+		
+		/*startTime =  System.nanoTime();
+		System.out.println(Color.sequential(Color.smallest_last(g2)));
+		endTime = System.nanoTime();
+		elapsedTime = endTime - startTime;
+		System.out.println("Elapsed time: " + elapsedTime / 1000000 + " milliseconds");*/
+		
+		
 		//Color.simulatedAnnealing(g2, initTemp, minLimitTemp, alpha, itermax, maxTconst, TypePath.normal, TypeDisplay.normal);
 		
 		//System.out.println(Color.taboo( Color.increasingIndex(g1), 5));

@@ -25,13 +25,13 @@ public class Color {
 		ArrayList<Node> nodes = new ArrayList<Node>();
 		Set<Integer> indexes = nodes_hm.keySet();
 		int lesserIndex = (int) Double.POSITIVE_INFINITY;
-				
+		//on cherche le noeud qui a le plus petit id		
 		for(int i : indexes)
 		{
 			if( i < lesserIndex )
 				lesserIndex = i;
 		}
-		
+		//on récupère la liste avec la méthode récursive
 		nodes = increasingIndexRec(nodes_hm.get(lesserIndex), nodes);
 		System.out.println("Path selected : " + nodes);
 		System.out.println("--------------------------");
@@ -49,6 +49,7 @@ public class Color {
 			ArrayList<Node> noeuds = n.getSuccSortedByIndex();
 			for(Node noeud : noeuds)
 			{
+				//si le noeud n'est pas marqué alors je prends sa liste des index croissant en récursif
 				if(!noeud.isMark()) {
 					nodesTmp = increasingIndexRec(noeud, nodesTmp);
 				}
@@ -99,7 +100,8 @@ public class Color {
 		{
 			n.setMark(true);
 			nodesTmp.add(n);
-			ArrayList<Node> noeuds = n.getSuccSortedByDegree();
+			//Getting successorDecreasing by degree
+			ArrayList<Node> noeuds = n.getSuccSortedByDegree2();
 			for(Node noeud : noeuds)
 			{
 				if(!noeud.isMark()) {
@@ -122,7 +124,7 @@ public class Color {
 		HashMap<Integer, Node> nodes_hm = g.getNoeuds_hm();
 		ArrayList<Node> init = transformToArrayList(nodes_hm);
 		ArrayList<Node> result = new ArrayList<Node>();
-			
+		//récupérer un à un les noeuds qui ont le moins de succésseurs vers ceux qui en ont le plus	
 		while(result.size() != init.size())
 		{
 			Node lesserNodeDegree = getLesserNodeDegree(init);
@@ -166,13 +168,14 @@ public class Color {
 		for(Node currentNode : nodes)
 		{
 			LinkedList<Arc> succ = currentNode.getSucc();
+			//prend le noeud avec le moins de succésseurs
 			if(succ.size() < lesserDegree && !currentNode.isMark())
 			{
 				lesserDegree = succ.size();
 				lesserNodeDegree = currentNode;
 			}
 		}
-		
+		//ont le marque pour ne pas le retourner quand on rappelera la méthode
 		lesserNodeDegree.setMark(true);
 		return lesserNodeDegree;
 	}

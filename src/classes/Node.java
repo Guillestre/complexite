@@ -83,7 +83,10 @@ public class Node {
 	public void setStartColor(boolean startColor) {
 		this.startColor = startColor;
 	}
-
+	/**
+	 * méthode qui retourne les succésseur du noeud dans l'ordre des id croissant
+	 * @return
+	 */
 	public ArrayList<Node> getSuccSortedByIndex()
 	{
 		ArrayList<Node> noeudsMarque = new ArrayList<Node>();
@@ -92,30 +95,32 @@ public class Node {
 		int plusPetitIndice = (int) Double.POSITIVE_INFINITY;
 		
 		Node noeud = null;
-		
+		//tant que la liste résultat n'a pas la taille de la liste des succésseurs
 		while(noeudsMarque.size() != succ.size()) {
 		
 			for(Arc arc : succ)
 			{
 				Node voisin = arc.getTarget();
+				//on prend le noeud avec le plus petit id qui n'est pas déjà dans le résultat
 				if(voisin.getId() < plusPetitIndice && !noeudsMarque.contains(voisin)) {
 					plusPetitIndice = voisin.getId();
 					noeud = arc.getTarget();
 				}
 			}
-			
+			//on ajoute le plus petit id
 			if(plusPetitIndice != (int) Double.POSITIVE_INFINITY ) {
 				noeudsMarque.add(noeud);
 				plusPetitIndice = (int) Double.POSITIVE_INFINITY;
 			}
 			
 		}
-		
 		return noeudsMarque;
 	}
 	
-	public ArrayList<Node> getSuccSortedByDegree()
+	//ancienne version
+	/*public ArrayList<Node> getSuccSortedByDegree()
 	{
+		
 		ArrayList<Node> sortedNodes = new ArrayList<Node>();
 		
 		while(sortedNodes.size() != succ.size()) {
@@ -142,7 +147,40 @@ public class Node {
 				}	
 			}
 		}
+		return sortedNodes;
+	}*/
+	
+	/**
+	 * méthode qui retourne la liste des sucésseurs dans l'ordre des degrées décroissant
+	 * @return
+	 */
+	
+	public ArrayList<Node> getSuccSortedByDegree2()
+	{
 		
+		ArrayList<Node> sortedNodes = new ArrayList<Node>();
+		int Best=-1;
+		Node noeud=null;
+		//tant que la liste résultat n'a pas la taille de la liste des succésseurs
+		while(sortedNodes.size() != succ.size()) {
+			
+			for(Arc arc : succ)
+			{
+				Node neighbour = arc.getTarget();
+				//on prend le noeud avec le plus grand degré qui n'est pas déjà dans le résultat
+				if(!sortedNodes.contains(neighbour) && neighbour.getSucc().size()>Best)
+				{
+					Best=neighbour.getSucc().size();
+					noeud=neighbour;
+				}	
+			}
+			//on ajoute le plus grand degré
+			if(Best!=-1) {
+				sortedNodes.add(noeud);
+				Best=-1;
+			}
+		}
+
 		return sortedNodes;
 	}
 

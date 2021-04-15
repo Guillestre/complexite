@@ -8,8 +8,11 @@ public class Main {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		Graphe g1 = new Graphe("Graphe.csv");
-		Graphe g2 = new RandomGraphe(10, 0.5);
+		//Graphe g1 = new Graphe("Graphe.csv");
+		Graphe g2 = new RandomGraphe(100, 0.5);
+		System.out.println(g2);
+		System.out.println("taboo : "+Color.taboo(Color.increasingIndex(g2), 10));
+		System.out.println("taboo2 : "+Color.taboo2(Color.increasingIndex(g2), 10));
 		
 		//SA parameters value
 		double initTemp = 150;
@@ -66,7 +69,7 @@ public class Main {
 		//sudoku.resolveSA(initTemp, minLimitTemp, alpha, itermax, maxTconst);
 		
 		//System.out.println(Color.backtracking(g1));
-		System.out.println(g2.toString());
+		/*System.out.println(g2.toString());
 		long startTime =  System.nanoTime();
 		System.out.println(Color.sequential(Color.decreasingDegree(g2)));
 		long endTime = System.nanoTime();
@@ -78,7 +81,7 @@ public class Main {
 		endTime = System.nanoTime();
 		elapsedTime = endTime - startTime;
 		System.out.println("Elapsed time: " + elapsedTime / 1000000 + " milliseconds");
-		
+		*/
 		/*startTime =  System.nanoTime();
 		System.out.println(Color.sequential(Color.smallest_last(g2)));
 		endTime = System.nanoTime();

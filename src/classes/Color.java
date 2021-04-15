@@ -31,7 +31,7 @@ public class Color {
 			if( i < lesserIndex )
 				lesserIndex = i;
 		}
-		//on récupère la liste avec la méthode récursive
+		//on rï¿½cupï¿½re la liste avec la mï¿½thode rï¿½cursive
 		nodes = increasingIndexRec(nodes_hm.get(lesserIndex), nodes);
 		System.out.println("Path selected : " + nodes);
 		System.out.println("--------------------------");
@@ -49,7 +49,7 @@ public class Color {
 			ArrayList<Node> noeuds = n.getSuccSortedByIndex();
 			for(Node noeud : noeuds)
 			{
-				//si le noeud n'est pas marqué alors je prends sa liste des index croissant en récursif
+				//si le noeud n'est pas marquï¿½ alors je prends sa liste des index croissant en rï¿½cursif
 				if(!noeud.isMark()) {
 					nodesTmp = increasingIndexRec(noeud, nodesTmp);
 				}
@@ -124,7 +124,7 @@ public class Color {
 		HashMap<Integer, Node> nodes_hm = g.getNoeuds_hm();
 		ArrayList<Node> init = transformToArrayList(nodes_hm);
 		ArrayList<Node> result = new ArrayList<Node>();
-		//récupérer un à un les noeuds qui ont le moins de succésseurs vers ceux qui en ont le plus	
+		//rï¿½cupï¿½rer un ï¿½ un les noeuds qui ont le moins de succï¿½sseurs vers ceux qui en ont le plus	
 		while(result.size() != init.size())
 		{
 			Node lesserNodeDegree = getLesserNodeDegree(init);
@@ -168,14 +168,14 @@ public class Color {
 		for(Node currentNode : nodes)
 		{
 			LinkedList<Arc> succ = currentNode.getSucc();
-			//prend le noeud avec le moins de succésseurs
+			//prend le noeud avec le moins de succï¿½sseurs
 			if(succ.size() < lesserDegree && !currentNode.isMark())
 			{
 				lesserDegree = succ.size();
 				lesserNodeDegree = currentNode;
 			}
 		}
-		//ont le marque pour ne pas le retourner quand on rappelera la méthode
+		//ont le marque pour ne pas le retourner quand on rappelera la mï¿½thode
 		lesserNodeDegree.setMark(true);
 		return lesserNodeDegree;
 	}
@@ -207,29 +207,27 @@ public class Color {
 					if (!colors.contains(target.getColor()) && target.getColor() != 0)
 						colors.add(target.getColor());
 				}
-				int alpha = 1;
+				int alpha = 1; // current color
 				
 				//While we encounter a color already token by an adjacent node, 
 				//then we increment alpha
 				while (colors.contains(alpha)) 
 					alpha++;
 				
-				if (alpha > chromaticNumber)
+				if (alpha > chromaticNumber) // update of the chromatic number
 					chromaticNumber = alpha;
 				
-		
-				node.setColor(alpha);
+				node.setColor(alpha); // node coloration
 			}
 			else
 			{
 				//If node is already colored
 				int color = node.getColor();
-				if(color > chromaticNumber)
+				if(color > chromaticNumber) // update of the chromatic number
 					chromaticNumber = color;
 			}
 		}
-	
-		return chromaticNumber;	
+		return chromaticNumber;
 	}
 
 	/**
@@ -563,36 +561,38 @@ public class Color {
 	}
 
 	/**
-	 * return a coloration with taboo process
-	 * @param nodes:ArrayList
-	 * @return omega:int
+	 * return a colorating with taboo process
+	 * @param ArrayList nodes
+	 * @param int iter
+	 * @return int omega
 	 */
 	public static int taboo(ArrayList<Node> nodes, int iter) {
-		int k = sequential(nodes);
-		int omega = k;
-		while (k > 0) {
-			k -= 1;
-			if (isKColoriable(nodes, k, iter))
-				omega = k;
-			else
-				return omega;
+		int k = sequential(nodes); // we calculate an upper bound of the chromatic number
+		int omega = k; // we initialize the chromatic number
+		while (k > 0) { // while we can find a smaller chromatic number
+			k -= 1; // we decrease the chromatic number
+			// we check that a k-coloring exists
+			if (isKColoriable(nodes, k, iter))  // if it's true
+				omega = k; // we update the chromatic number
+			else // if not
+				return omega; // we stop
 		}
 		return omega;
 	}
 	
 	/**
 	 * check if a graph is k-coloriable
-	 * @param nodes:Arraylist
-	 * @param k:int
-	 * @param iter:int
+	 * @param Arraylist nodes
+	 * @param int k
+	 * @param int iter
 	 * @return boolean
 	 */
 	private static boolean isKColoriable(ArrayList<Node> nodes, int k, int iter) {
 		// colors initialisation
-		int[] c = new int[k];
+		int[] c = new int[k]; 
 		for (int i = 0; i < c.length; i++) {
 			c[i] = i + 1;
-		}
+		} // contains available colors
 		// memory initialisation
 		ArrayList<ArrayList<Integer>> M = new ArrayList<>();
 		for (int i = 0; i < nodes.size(); i++) {
@@ -601,41 +601,143 @@ public class Color {
 				m.add(j, 0);
 				M.add(i, m);
 			}
-		}
-		// --Initialisation--
+		} // contains the number of iterations during which a transformation is prohibited
+		
+				// ----Initialisation----
 		Collections.shuffle(nodes); // random route
-		for (Node node : nodes) { // sequential coloration
-			ArrayList<Integer> tmpColors = new ArrayList<>();
+		// sequential coloring with conflicts
+		for (Node node : nodes) { 
+			ArrayList<Integer> tmpColors = new ArrayList<>(); // neighbor color list
 			for (Arc arc : node.getSucc()) {
-				Node target = arc.getTarget();
+				Node target = arc.getTarget(); // neighbor node
 				if (!tmpColors.contains(target.getColor()))
 					tmpColors.add(target.getColor());
 			}
-			int alpha = 1;
-			while (tmpColors.contains(alpha)) {
+			int alpha = 1; // current color
+			while (tmpColors.contains(alpha)) { // current color selection
 				alpha++;
 			}
+			// conflicting coloring
 			if (alpha > k)
 				alpha = c[randomGenerator(1, k) - 1];
 			node.setColor(alpha);
 		}
-		// --Transformation locale--
-		int index;
-		int color;
-		for (int cpt = 0; cpt < nodes.size(); cpt++) {
+		
+				// ----Local processing----
+		int index; // index of the node to transform
+		int color; // transformation color
+		for (int cpt = 0; cpt < nodes.size()*iter; cpt++) {
 			int br = 0;
+			// transformation selection
 			do {
 				index = randomGenerator(0, nodes.size() - 1);
 				color = randomGenerator(1, k + 1);
 				br++;
-				if (br > M.size() * k)
+				if (br > nodes.size() * k) // if the memory is satured
 					return false;
-			} while (M.get(index).get(color) != 0);
-			M.get(index).set(color, iter);
-			nodes.get(index).setColor(color);
-			if (f(nodes) ==0)
+			} while (M.get(index).get(color) != 0); // while the transformation is not available
+			M.get(index).set(color, iter); // processing storage
+			nodes.get(index).setColor(color); // node coloring
+			if (f(nodes) ==0) // if the coloring is clean
+				return true;
+			// update of memory
+				// we decrease the memory
+			for (int i = 0; i < nodes.size(); i++) {
+				for (int j = 0; j < c.length; j++) {
+					int tmp = M.get(i).get(j);
+					if (tmp != 0)
+						M.get(i).set(j, tmp - 1);
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * return a coloring with taboo process
+	 * @param ArrayList nodes
+	 * @param int iter
+	 * @return int omega
+	 */
+	public static int taboo2(ArrayList<Node> nodes, int iter) {
+		int k = sequential(nodes); // we calculate an upper bound of the chromatic number
+		int omega = k; // initialize the chromatic number
+		while (k > 0) { // while we can find a smaller chromatic number
+			k -= 1; // we decrease the chromatic number
+			// we check that a k-coloring exists
+			if (isKColoriable2(nodes, k, iter)) // if it's true
+				omega = k; // we update the chromatic number
+			else // if not
+				return omega; // we stop
+		}
+		return omega;
+	}
+	
+	/**
+	 * check if a graph is k-coloriable
+	 * @param Arraylist nodes
+	 * @param int k
+	 * @param int iter
+	 * @return boolean
+	 */
+	private static boolean isKColoriable2(ArrayList<Node> nodes, int k, int iter) {
+		// colors initialisation
+		int[] c = new int[k];
+		for (int i = 0; i < c.length; i++) {
+			c[i] = i + 1;
+		} // contains available colors
+		// memory initialisation
+		ArrayList<ArrayList<Integer>> M = new ArrayList<>();
+		for (int i = 0; i < nodes.size(); i++) {
+			ArrayList<Integer> m = new ArrayList<>();
+			for (int j = 0; j < c.length + 1; j++) {
+				m.add(j, 0);
+				M.add(i, m);
+			}
+		} // contains the number of iterations during which a transformation is prohibited
+		
+				// ----Initialization----
+		Collections.shuffle(nodes); // random route
+		ArrayList<Node> conflictingNodes = new ArrayList<Node>(); // list of conflicting nodes
+		// sequential coloring whith conflicts
+		for (Node node : nodes) { 
+			ArrayList<Integer> tmpColors = new ArrayList<>(); // neighbor color list
+			for (Arc arc : node.getSucc()) {
+				Node target = arc.getTarget(); // neighbor node
+				if (!tmpColors.contains(target.getColor()))
+					tmpColors.add(target.getColor());
+			}
+			int alpha = 1; // current color
+			while (tmpColors.contains(alpha)) { // current color selection
+				alpha++;
+			}
+			// conflicting coloring
+			if (alpha > k) { 
+				alpha = c[randomGenerator(1, k) - 1];
+				conflictingNodes.add(node);
+			}
+			node.setColor(alpha);
+		}
+		
+				// ----Local processing----
+		int index; // index of the node to transform
+		int color; // transformation color
+		for (int cpt = 0; cpt < conflictingNodes.size()*iter; cpt++) {
+			int br = 0;
+			// transformation selection
+			do {
+				index = randomGenerator(0, conflictingNodes.size() - 1);
+				color = randomGenerator(1, k + 1);
+				br++;
+				if (br > conflictingNodes.size() * k) // if the memory is satured
+					return false;
+			} while (M.get(index).get(color) != 0); // while the transformation is not available
+			M.get(index).set(color, iter); // processing sorage
+			conflictingNodes.get(index).setColor(color); // node coloring
+			if (f(nodes) ==0) // if the coloring is clean
 			return true;
 			// update memory
+				// we decrease the memory
 			for (int i = 0; i < nodes.size(); i++) {
 				for (int j = 0; j < c.length; j++) {
 					int tmp = M.get(i).get(j);
@@ -648,11 +750,12 @@ public class Color {
 	}
 
 	/**
-	 * objective function
-	 * @param nodes:ArrayList
-	 * @return result:int
+	 * check that a coloring is clean
+	 * @param ArrayList nodes
+	 * @return int result
 	 */
 	private static int f(ArrayList < Node > nodes) {
+		// the coloring is clean if result = 0
 		int result = 0;
 		for (Node node : nodes) {
 			for (Arc arc : node.getSucc()) {
@@ -663,11 +766,12 @@ public class Color {
 	}
 
 	/**
-	 * g function
-	 * @param arc:Arc
+	 * tests if two neighboring nodes are in conflict
+	 * @param Arc arc
 	 * @return int
 	 */
 	private static int g (Arc arc){
+		// return 1 if conflict
 		if (arc.getSource().getColor() == arc.getTarget().getColor())
 			return 1;
 		else
@@ -676,9 +780,9 @@ public class Color {
 
 	/**
 	 * generate a random number between two bounds
-	 * @param inf:int
-	 * @param sup:int
-	 * @return random:int
+	 * @param int inf
+	 * @param inf sup
+	 * @return int random
 	 */
 	public static int randomGenerator ( int inf, int sup){
 		if (inf == sup)

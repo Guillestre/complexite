@@ -13,8 +13,8 @@ public class Color {
 	/******** ALGORITHMS ************************************************************************************/
 	
 	/**
-	 * Called to found a path from a given hash map of nodes respecting increasing index rules
-	 * @param nodes_hm
+	 * Called to found a path from a given graph of nodes respecting increasing index rules
+	 * @param g
 	 * @return the path represented by ArrayList
 	 */
 	
@@ -25,13 +25,15 @@ public class Color {
 		ArrayList<Node> nodes = new ArrayList<Node>();
 		Set<Integer> indexes = nodes_hm.keySet();
 		int lesserIndex = (int) Double.POSITIVE_INFINITY;
-		//on cherche le noeud qui a le plus petit id		
+		
+		//Fetch the node which has the smaller id
 		for(int i : indexes)
 		{
 			if( i < lesserIndex )
 				lesserIndex = i;
 		}
-		//on r�cup�re la liste avec la m�thode r�cursive
+		
+		//Getting list with recursive method
 		nodes = increasingIndexRec(nodes_hm.get(lesserIndex), nodes);
 		System.out.println("Path selected : " + nodes);
 		System.out.println("--------------------------");
@@ -49,7 +51,7 @@ public class Color {
 			ArrayList<Node> noeuds = n.getSuccSortedByIndex();
 			for(Node noeud : noeuds)
 			{
-				//si le noeud n'est pas marqu� alors je prends sa liste des index croissant en r�cursif
+				//If the node isn't marked, then we take his increasing index list in recursive 
 				if(!noeud.isMark()) {
 					nodesTmp = increasingIndexRec(noeud, nodesTmp);
 				}
@@ -59,8 +61,8 @@ public class Color {
 	}
 	
 	/**
-	 * Called to found a path from a given hash map of nodes respecting decreasing degree rules
-	 * @param nodes_hm
+	 * Called to found a path from a given graph of nodes respecting decreasing degree rules
+	 * @param g
 	 * @return the path represented by ArrayList
 	 */
 	
@@ -101,7 +103,7 @@ public class Color {
 			n.setMark(true);
 			nodesTmp.add(n);
 			//Getting successorDecreasing by degree
-			ArrayList<Node> noeuds = n.getSuccSortedByDegree2();
+			ArrayList<Node> noeuds = n.getSuccSortedByDegree();
 			for(Node noeud : noeuds)
 			{
 				if(!noeud.isMark()) {
@@ -113,8 +115,8 @@ public class Color {
 	}
 	
 	/**
-	 * Called to found a path from a given hash map of nodes respecting smallest last rules
-	 * @param nodes_hm
+	 * Called to found a path from a given graph of nodes respecting smallest last rules
+	 * @param g
 	 * @return the path represented by ArrayList
 	 */
 	
@@ -124,17 +126,19 @@ public class Color {
 		HashMap<Integer, Node> nodes_hm = g.getNoeuds_hm();
 		ArrayList<Node> init = transformToArrayList(nodes_hm);
 		ArrayList<Node> result = new ArrayList<Node>();
-		//r�cup�rer un � un les noeuds qui ont le moins de succ�sseurs vers ceux qui en ont le plus	
+		
+		//Retrieve one by one the nodes that have the less successors towards those which have the most
 		while(result.size() != init.size())
 		{
 			Node lesserNodeDegree = getLesserNodeDegree(init);
 			result.add(lesserNodeDegree);
 		}	
 		
+		result = inverse(result);
 		System.out.println("Path selected : " + result);
 		System.out.println("-----------------------");
 		resetMarks(result);
-		return inverse(result);
+		return result;
 	}
 	
 	/**
@@ -168,22 +172,25 @@ public class Color {
 		for(Node currentNode : nodes)
 		{
 			LinkedList<Arc> succ = currentNode.getSucc();
-			//prend le noeud avec le moins de succ�sseurs
+			
+			//Select the node with the lesser number of succesors
 			if(succ.size() < lesserDegree && !currentNode.isMark())
 			{
 				lesserDegree = succ.size();
 				lesserNodeDegree = currentNode;
 			}
 		}
-		//ont le marque pour ne pas le retourner quand on rappelera la m�thode
+		
+		//We mark it in order to avoid to go back to it when we will recall the method 
 		lesserNodeDegree.setMark(true);
+		
 		return lesserNodeDegree;
 	}
 	
 	/**
 	 * Color nodes in a sequential way
 	 * @param nodes
-	 * @return the minimum number of colors used
+	 * @return the chromatic number
 	 */
 	public static int sequential(ArrayList<Node> nodes) {
 	
@@ -231,12 +238,15 @@ public class Color {
 	}
 
 	/**
-	 * Return the best solution with a given initial solution
+	 * Look for the best solution with a given initial solution by using SA algorithm
+	 * @param g
 	 * @param initTemp
 	 * @param alpha
 	 * @param itermax
 	 * @param maxTconst
-	 * @return the best solution found
+	 * @param typePath
+	 * @param typeDisplay
+	 * @return the chromatic number
 	 */
 	
 	public static int simulatedAnnealing(Graphe g, double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst, TypePath typePath, TypeDisplay typeDisplay)
@@ -319,8 +329,9 @@ public class Color {
 		if(typeDisplay == TypeDisplay.normal) 
 			System.out.println("\n---- SIMULATED ANNEALING FINISHED ----");
 		
-		//Color the better path found
+		//Color the graph with the better path found
 		sequential(finalSolution);
+		
 		return finalChromaticNumber;
 	}
 	
@@ -346,6 +357,7 @@ public class Color {
 		int id_firstPosition;
 		int id_secondPosition;
 		
+		//Make sure that both numbers aren't equals
 		do {
 			id_firstPosition = min + (int)(Math.random() * ((max - min) + 1));
 			id_secondPosition = min + (int)(Math.random() * ((max - min) + 1));
@@ -361,8 +373,8 @@ public class Color {
 	
 	/**
 	 * Return best paths with their coloration with the smaller number of colors 
-	 * @param nodes_hm
-	 * @return
+	 * @param g
+	 * @return the chromatic number
 	 */
 	
 	public static int backtracking(Graphe g)
@@ -398,7 +410,7 @@ public class Color {
 	 * @param nbAllPaths
 	 * @param nbColoriablePaths
 	 * @param m
-	 * @return the number of path coloriable
+	 * @return the number of coloriable path
 	 */
 	
 	private static int displayColoration(ArrayList<ArrayList<Node>> allPaths, int nbAllPaths, int nbColoriablePaths, int m) {
@@ -418,20 +430,20 @@ public class Color {
 	}
 	
 	/**
-	 * Check if the path nodes can be colored with at most n colors
+	 * Check if the path nodes can be colored with at most m colors
 	 * @param nodes
-	 * @param n
+	 * @param m
 	 * @return true if it's possible, false otherwise
 	 */
 	
-	private static boolean backtrackColor(ArrayList<Node> nodes, int n)
+	private static boolean backtrackColor(ArrayList<Node> nodes, int m)
 	{
 		resetColors(nodes);
-		boolean isColoriable = backtrackColorRec(nodes, 0, n, "");
+		boolean isColoriable = backtrackColorRec(nodes, 0, m, "");
 		return isColoriable;
 	}
 	
-	private static boolean backtrackColorRec(ArrayList<Node> nodes, int currentPosition, int n, String str)
+	private static boolean backtrackColorRec(ArrayList<Node> nodes, int currentPosition, int m, String str)
 	{ 
 		Node currentNode = null;
 		
@@ -445,7 +457,7 @@ public class Color {
 			currentNode = nodes.get(currentPosition);
 		
 		//We test each color until the color n
-		for(int c = 1; c <= n; c++)
+		for(int c = 1; c <= m; c++)
 		{
 			currentNode.setColor(c);
 			LinkedList<Arc> succ = currentNode.getSucc();
@@ -459,7 +471,7 @@ public class Color {
 			}
 			//If c is coloriable, then we continue to go through the path
 			if(isSafe)
-				return backtrackColorRec(nodes, currentPosition + 1, n, str + " " + currentNode.getColor() + " ");	
+				return backtrackColorRec(nodes, currentPosition + 1, m, str + " " + currentNode.getColor() + " ");	
 		}
 		//If currentNode has been processed, then we reset his color
 		currentNode.setColor(0);
@@ -481,6 +493,7 @@ public class Color {
 	  
 	 private static void getPermutationsRec(ArrayList<Node> nodes, int pos, ArrayList<ArrayList<Node>> result){  
 		 
+		//If pos has reached the size of nodes, then we can add the new path to the result
         if(pos >= nodes.size() - 1){   
         	ArrayList<Node> newSolution = new ArrayList<Node>();
           
@@ -493,14 +506,17 @@ public class Color {
             return;  
         }  
   
+        //Go through each possible position from pos 
         for(int i = pos; i < nodes.size(); i++){   
           
+        	//Swap two nodes
             Node t = nodes.get(pos);  
             nodes.set(pos, nodes.get(i));
             nodes.set(i, t);
   
             getPermutationsRec(nodes, pos+1, result);  
   
+            //Swap two nodes
             t = nodes.get(pos);  
             nodes.set(pos, nodes.get(i));
             nodes.set(i, t);
@@ -509,7 +525,7 @@ public class Color {
 	
 	
 	/**
-	* return a coloration with DSatur pocess
+	* return a coloration with DSatur process
 	* @param nodes:ArrayList<Node>
 	* @return omega:int
 	 */
@@ -822,7 +838,7 @@ public class Color {
 	/**
 	 * Transform a hash map of nodes into an ArrayList of nodes
 	 * @param nodes_hm
-	 * @return an ArrayList
+	 * @return a path
 	 */
 	
 	public static ArrayList<Node> transformToArrayList(HashMap<Integer, Node> nodes_hm)
@@ -841,7 +857,7 @@ public class Color {
 	 * Choose the right path to return according to typePath
 	 * @param typePath
 	 * @param nodes_hm
-	 * @return
+	 * @return a path
 	 */
 	
 	private static ArrayList<Node> getPath(Graphe g, TypePath typePath)

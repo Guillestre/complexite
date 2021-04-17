@@ -4,21 +4,49 @@ import java.util.ArrayList;
 import types.TypeDisplay;
 import types.TypePath;
 
+/**
+ * Class used to simulate Sudoku using graph
+ * @author guill
+ *
+ */
+
 public class Sudoku extends Graphe {
 
+	//Matrix of ids of the nodes  
 	private int[][] m_ids = new int[9][9];
+	
+	//Matrix representing the sudoku by colors from 1 to 9
 	private int[][] m_colors = new int[9][9];
+	
+	//ids of nodes from each row
 	private ArrayList<ArrayList<Node>> id_rows = new ArrayList<ArrayList<Node>>();
+	
+	//ids of nodes from each column
 	private ArrayList<ArrayList<Node>> id_cols = new ArrayList<ArrayList<Node>>();
+	
+	/**
+	 * Initialize sudoku with random colors
+	 */
 	
 	public Sudoku()
 	{
 		for(int i = 1; i < 82; i++)
 			this.addNoeud(i);
 		
-		setFullMatrix();
-		generateRandomColors();
+		setIdMatrix();
+		
+		//Set edges 
+		setEdgesRows();
+		setEdgesCols();
+		setEdgesBlocks();
+		
+		setRandomSudoku();
 	}
+	
+	/**
+	 * Initialize sudoku a matrix m of colors given 
+	 * @param m
+	 */
 	
 	public Sudoku(int m[][])
 	{
@@ -26,11 +54,21 @@ public class Sudoku extends Graphe {
 		for(int i = 1; i < 82; i++)
 			this.addNoeud(i);
 		
-		setFullMatrix();
+		setIdMatrix();
+		
+		//Set edges
+		setEdgesRows();
+		setEdgesCols();
+		setEdgesBlocks();
+		
 		setSudoku(m);
 	}
 	
-	private void setFullMatrix()
+	/**
+	 * Set matrix of id
+	 */
+	
+	private void setIdMatrix()
 	{
 		int k = 1;
 		for(int i = 0; i < 9; i++)
@@ -38,18 +76,19 @@ public class Sudoku extends Graphe {
 			for(int j = 0; j < 9; j++)
 			{
 				m_ids[i][j] =  this.getNoeud(k).getId();
-				m_colors[i][j] = this.getNoeud(k).getColor();
 				k++;
 			}
 		}
-		setConnectionRows();
-		setConnectionCols();
-		setConnectionBlocks();
 	}
 	
+	/**
+	 * Set edges for each row
+	 */
 	
-	private void setConnectionRows()
+	private void setEdgesRows()
 	{
+		
+		//Add each row into into id_rows
 		for(int i = 0; i < 9; i++)
 		{
 			ArrayList<Node> row = new ArrayList<Node>();
@@ -59,8 +98,6 @@ public class Sudoku extends Graphe {
 				{
 					Node firstNode = this.getNoeud(m_ids[i][j]); 
 					Node secondNode = this.getNoeud(m_ids[i][j + 1]);
-					
-					this.addArc( firstNode.getId(), secondNode.getId());
 					
 					if(!row.contains(firstNode))
 						row.add(firstNode);
@@ -73,8 +110,10 @@ public class Sudoku extends Graphe {
 			this.id_rows.add(row);
 		}
 		
+		//For each row
 		for(ArrayList<Node> row : id_rows)
 		{
+			//For a given node, create edges between this node and all others nodes from the same row 
 			for(Node node : row)
 			{
 				for(Node tmpNode : row)
@@ -85,8 +124,13 @@ public class Sudoku extends Graphe {
 		}
 	}
 	
-	private void setConnectionCols()
+	/**
+	 * Set edges for each column
+	 */
+	
+	private void setEdgesCols()
 	{
+		//Add each column into into id_cols
 		for(int j = 0; j < 9; j++)
 		{
 			ArrayList<Node> col = new ArrayList<Node>();
@@ -96,8 +140,6 @@ public class Sudoku extends Graphe {
 				{
 					Node firstNode = this.getNoeud(m_ids[i][j]); 
 					Node secondNode = this.getNoeud(m_ids[i + 1][j]);
-				
-					this.addArc( firstNode.getId(), secondNode.getId());
 					
 					if(!col.contains(firstNode))
 						col.add(firstNode);
@@ -110,8 +152,10 @@ public class Sudoku extends Graphe {
 			this.id_cols.add(col);
 		}
 		
+		//For each column
 		for(ArrayList<Node> col : id_cols)
 		{
+			//For a given node, create edges between this node and all others nodes from the same column
 			for(Node node : col)
 			{
 				for(Node tmpNode : col)
@@ -121,14 +165,22 @@ public class Sudoku extends Graphe {
 		
 	}
 	
-	private void setConnectionBlocks()
+	/**
+	 * Set edges into each block
+	 */
+	
+	private void setEdgesBlocks()
 	{
 		for(int i = 0; i < 9; i++)
 		{
 			for(int j = 0; j < 9; j++)
-				addBlockConnection(i, j);
+				addBlockEdges(i, j);
 		}
 	}
+	
+	/**
+	 * Called to update the matrix of colors
+	 */
 	
 	private void updateSudoku()
 	{
@@ -141,7 +193,13 @@ public class Sudoku extends Graphe {
 		
 	}
 	
-	private void addBlockConnection(int i, int j)
+	/**
+	 * For a given node from a specific block, create edges with others nodes in the same block not yet connected with
+	 * @param i
+	 * @param j
+	 */
+	
+	private void addBlockEdges(int i, int j)
 	{
 		Node currentNode = this.getNoeud(m_ids[i][j]);
 		
@@ -203,7 +261,11 @@ public class Sudoku extends Graphe {
 		}
 	}
 	
-	public void generateRandomColors()
+	/**
+	 * Generate a random sudoku with random colors in each block
+	 */
+	
+	public void setRandomSudoku()
 	{
 		ArrayList<Node> nodes = Color.transformToArrayList(getNoeuds_hm());
 		Color.resetColors(nodes);
@@ -221,6 +283,14 @@ public class Sudoku extends Graphe {
 		addRandomColor(6, 8, 6, 8);
 		
 	}
+	
+	/**
+	 * Add a random color in the matrix id_colors between min_row and max_row and between min_col and max_col
+	 * @param min_row
+	 * @param max_row
+	 * @param min_col
+	 * @param max_col
+	 */
 	
 	private void addRandomColor(int min_row, int max_row, int min_col, int max_col)
 	{
@@ -242,8 +312,10 @@ public class Sudoku extends Graphe {
 					{
 						if(m_colors[i][j] == 0 && nbColorAdded != nbColorToAdd)
 						{
+							//Getting node to color
 							Node node = this.getNoeud(m_ids[i][j]);
 							
+							//Getting colors of each adjacent node
 							ArrayList<Integer> colors = new ArrayList<>();
 							for (Arc arc : node.getSucc()) {
 								Node target = arc.getTarget();
@@ -255,16 +327,22 @@ public class Sudoku extends Graphe {
 								alpha++;
 							}
 							
-							
+							//We generate a random color
 							int color = alpha + (int)(Math.random() * ((9 - alpha) + 1));
 							
+							//We verify if this color can colored for this node. Otherwise, we generate a new color
 							while(colors.contains(color))
 								color = alpha + (int)(Math.random() * ((9 - alpha) + 1));
 							
+							//Set this node as start color
 							node.setStartColor(true);
+							
+							//Color the node
 							node.setColor(color);
 							
 							nbColorAdded++;
+							
+							//Add the new color to the sudoku matrix
 							m_colors[i][j] = color;
 						}
 							
@@ -276,6 +354,15 @@ public class Sudoku extends Graphe {
 		
 	}
 	
+	/**
+	 * Used to resolve sudoku with simulated annealing algorithm
+	 * @param initTemp
+	 * @param minLimitTemp
+	 * @param alpha
+	 * @param itermax
+	 * @param maxTconst
+	 */
+	
 	public void resolveSA(double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst)
 	{	
 		
@@ -286,19 +373,32 @@ public class Sudoku extends Graphe {
 		
 	}
 	
+	/**
+	 * Apply SA resolution
+	 * @param initTemp
+	 * @param minLimitTemp
+	 * @param alpha
+	 * @param itermax
+	 * @param maxTconst
+	 */
+	
 	private void simulatedAnnealingResolution(double initTemp, double minLimitTemp, double alpha, double itermax, double maxTconst)
 	{
 		System.out.println("\nSolving....");
 		int m = 0;
 		double startTime = System.currentTimeMillis();
 		boolean noFound = false;
+		
+		//While SA hasn't found a chromatic number equal to 9
 		while(m != 9) {
 			
+			//If resolving last more than 1 minute, the program stop
 			if(System.currentTimeMillis() - startTime > 60000) {
 				noFound = true;
 				break;
 			}
 			
+			//Call SA 
 			m = Color.simulatedAnnealing(
 					this, 
 					initTemp, 
@@ -313,8 +413,13 @@ public class Sudoku extends Graphe {
 			
 		}
 		
+		//If SA found a solution
 		if(!noFound) {
+			
+			//Then we update m_colors
 			updateSudoku();
+			
+			//Display solution found
 			System.out.println("--- AFTER ---");
 			displaySudoku();
 			System.out.println("Solving with simulated annealing finished");
@@ -322,6 +427,10 @@ public class Sudoku extends Graphe {
 		else 
 			System.out.println("No solutions found, resolution took too much time");
 	}
+	
+	/**
+	 * Display id matrix
+	 */
 	
 	public void displayIdTable()
 	{
@@ -358,6 +467,10 @@ public class Sudoku extends Graphe {
 		System.out.println(str);
 	}
 	
+	/**
+	 * Display the sudoku
+	 */
+	
 	public void displaySudoku()
 	{
 		System.out.println("\n--------------- SUDOKU -----------------\n");
@@ -389,6 +502,11 @@ public class Sudoku extends Graphe {
 		}
 		System.out.println(str);
 	}
+	
+	/**
+	 * Set the sudoku with colors from the matrix m 
+	 * @param m
+	 */
 	
 	private void setSudoku(int[][] m)
 	{

@@ -83,100 +83,76 @@ public class Node {
 	public void setStartColor(boolean startColor) {
 		this.startColor = startColor;
 	}
+	
 	/**
-	 * méthode qui retourne les succésseur du noeud dans l'ordre des id croissant
-	 * @return
+	 * Called to get list of successors of the node ordered by their id in a increasing way
+	 * @return list of successors
 	 */
+	
 	public ArrayList<Node> getSuccSortedByIndex()
 	{
-		ArrayList<Node> noeudsMarque = new ArrayList<Node>();
+		ArrayList<Node> markedNodes = new ArrayList<Node>();
 		
-		//On recupere le plus petit noeud
-		int plusPetitIndice = (int) Double.POSITIVE_INFINITY;
+		//Set lesser node
+		int lesserID = (int) Double.POSITIVE_INFINITY;
 		
-		Node noeud = null;
-		//tant que la liste résultat n'a pas la taille de la liste des succésseurs
-		while(noeudsMarque.size() != succ.size()) {
-		
-			for(Arc arc : succ)
-			{
-				Node voisin = arc.getTarget();
-				//on prend le noeud avec le plus petit id qui n'est pas déjà dans le résultat
-				if(voisin.getId() < plusPetitIndice && !noeudsMarque.contains(voisin)) {
-					plusPetitIndice = voisin.getId();
-					noeud = arc.getTarget();
-				}
-			}
-			//on ajoute le plus petit id
-			if(plusPetitIndice != (int) Double.POSITIVE_INFINITY ) {
-				noeudsMarque.add(noeud);
-				plusPetitIndice = (int) Double.POSITIVE_INFINITY;
-			}
-			
-		}
-		return noeudsMarque;
-	}
+		Node node = null;
 	
-	//ancienne version
-	/*public ArrayList<Node> getSuccSortedByDegree()
-	{
+		//While the list of result hasn't the size of successor list
+		while(markedNodes.size() != succ.size()) {
 		
-		ArrayList<Node> sortedNodes = new ArrayList<Node>();
-		
-		while(sortedNodes.size() != succ.size()) {
-			
 			for(Arc arc : succ)
 			{
 				Node neighbour = arc.getTarget();
-				boolean isGreater = true;
 				
-				if(!sortedNodes.contains(neighbour))
-				{
-					for(Arc tmpArc : succ)
-					{
-						Node tmpNeighbour = tmpArc.getTarget();
-						if(!tmpNeighbour.equals(neighbour) && !sortedNodes.contains(tmpNeighbour))
-							if(tmpNeighbour.getSucc().size() > neighbour.getSucc().size())
-								isGreater = false;
-	
-					}
-					
-					if(isGreater) {
-						sortedNodes.add(neighbour);
-					}
-				}	
+				//Select node with the lesser id which is no yet in the result
+				if(neighbour.getId() < lesserID && !markedNodes.contains(neighbour)) {
+					lesserID = neighbour.getId();
+					node = arc.getTarget();
+				}
 			}
+			
+			//Add lesser id
+			if(lesserID != (int) Double.POSITIVE_INFINITY ) {
+				markedNodes.add(node);
+				lesserID = (int) Double.POSITIVE_INFINITY;
+			}
+			
 		}
-		return sortedNodes;
-	}*/
+		return markedNodes;
+	}
+
 	
 	/**
-	 * méthode qui retourne la liste des sucésseurs dans l'ordre des degrées décroissant
-	 * @return
+	 * Called to get list of successors of the node ordered by their degree in a decreasing way
+	 * @return list of successors
 	 */
 	
-	public ArrayList<Node> getSuccSortedByDegree2()
+	public ArrayList<Node> getSuccSortedByDegree()
 	{
 		
 		ArrayList<Node> sortedNodes = new ArrayList<Node>();
 		int Best=-1;
-		Node noeud=null;
-		//tant que la liste résultat n'a pas la taille de la liste des succésseurs
+		Node node = null;
+	
+		//While result list hasn't the size of successors list
 		while(sortedNodes.size() != succ.size()) {
 			
 			for(Arc arc : succ)
 			{
 				Node neighbour = arc.getTarget();
-				//on prend le noeud avec le plus grand degré qui n'est pas déjà dans le résultat
+				
+				//Select node with the greater degree which is no yet in the result
 				if(!sortedNodes.contains(neighbour) && neighbour.getSucc().size()>Best)
 				{
 					Best=neighbour.getSucc().size();
-					noeud=neighbour;
+					node=neighbour;
 				}	
 			}
-			//on ajoute le plus grand degré
+		
+			//Add greater degree
 			if(Best!=-1) {
-				sortedNodes.add(noeud);
+				sortedNodes.add(node);
 				Best=-1;
 			}
 		}

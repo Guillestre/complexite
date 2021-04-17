@@ -8,20 +8,17 @@ public class Main {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		//Graphe g1 = new Graphe("Graphe.csv");
-		Graphe g2 = new RandomGraphe(100, 0.5);
-		System.out.println(g2);
-		System.out.println("taboo : "+Color.taboo(Color.increasingIndex(g2), 10));
-		System.out.println("taboo2 : "+Color.taboo2(Color.increasingIndex(g2), 10));
-		
-		//SA parameters value
-		double initTemp = 150;
-		double minLimitTemp = 0.001;
-		double alpha = 0.9;
-		double itermax = 200; 
-		double maxTconst = 10;
+		Graphe g1 = new Graphe("Graphe1.csv");
+		Graphe g2 = new RandomGraphe(800, 0.5);
 	
-		/** TEST AREA ***/
+		//Simulated annealing parameters value
+		double initTemp = 1000;
+		double minLimitTemp = 0.001;
+		double alpha = 0.8;
+		double itermax = 500; 
+		double maxTconst = 150;
+		
+		/** TEST SUDOKU AREA ***/
 	
 		int[][] s1 = {
 				{0,0,1 ,0,0,9 ,0,0,0},
@@ -65,8 +62,12 @@ public class Main {
 				{0,0,3 ,0,0,2 ,0,0,0},
 		};
 		
-		//Sudoku sudoku = new Sudoku(s2);
-		//sudoku.resolveSA(initTemp, minLimitTemp, alpha, itermax, maxTconst);
+		/***************************/
+		
+		/*
+		Sudoku sudoku = new Sudoku();
+		sudoku.resolveSA(initTemp, minLimitTemp, alpha, itermax, maxTconst);
+		*/
 		
 		//System.out.println(Color.backtracking(g1));
 		/*System.out.println(g2.toString());
